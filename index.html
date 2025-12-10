@@ -1,0 +1,975 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>PIN-PON SHOP</title>
+    <!-- Iconos para un look profesional -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #000000; /* Negro puro estilo Temu/Shein */
+            --secondary: #fb7701; /* Naranja Temu para acciones principales */
+            --accent: #E60023; /* Rojo para ofertas/precios */
+            --bg: #f7f7f7;
+            --white: #ffffff;
+            --text: #333333;
+            --radius: 8px;
+            --shadow: 0 2px 8px rgba(0,0,0,0.06);
+            --gold: #ffc107;
+        }
+
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: none; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background: var(--bg); margin: 0; color: var(--text); padding-bottom: 160px; }
+
+        /* --- HEADER & SEARCH --- */
+        header { background: var(--white); position: sticky; top: 0; z-index: 100; box-shadow: 0 1px 5px rgba(0,0,0,0.05); }
+        .header-top { display: flex; justify-content: space-between; align-items: center; padding: 10px 15px; }
+        .logo { font-size: 1.3rem; font-weight: 900; letter-spacing: -0.5px; color: var(--primary); text-transform: uppercase; display: flex; align-items: center; gap: 5px; }
+        .logo span { color: var(--secondary); }
+        .menu-btn { font-size: 1.4rem; cursor: pointer; color: #333; }
+
+        .search-container { padding: 0 15px 10px 15px; position: relative; }
+        .search-wrapper { position: relative; }
+        .search-input { width: 100%; background: #f0f0f0; border: none; padding: 10px 40px 10px 15px; border-radius: 20px; font-size: 0.95rem; color: #333; transition: 0.3s; }
+        .search-input:focus { background: #e8e8e8; box-shadow: 0 0 0 2px rgba(251, 119, 1, 0.1); }
+        .search-icon { position: absolute; right: 15px; top: 50%; transform: translateY(-50%); color: #888; pointer-events: none; }
+
+        /* --- BANNER --- */
+        .banner { background: linear-gradient(135deg, #1a1a1a, #333); color: white; padding: 25px 20px; text-align: center; position: relative; margin-bottom: 5px; }
+        .banner h2 { margin: 0; font-size: 1.4rem; font-weight: 700; }
+        .banner p { margin: 5px 0 0; font-size: 0.9rem; opacity: 0.9; }
+        .banner-edit-overlay { position: absolute; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); display:none; justify-content:center; align-items:center; cursor:pointer; font-weight: bold; border: 2px dashed #fff; z-index: 10; }
+
+        /* --- CATEGORIES --- */
+        .categories-scroll { display: flex; overflow-x: auto; padding: 10px 15px; gap: 10px; scrollbar-width: none; background: var(--white); border-bottom: 1px solid #f0f0f0; }
+        .categories-scroll::-webkit-scrollbar { display: none; }
+        .cat-pill { padding: 6px 14px; border-radius: 4px; white-space: nowrap; font-size: 0.85rem; cursor: pointer; color: #555; font-weight: 500; position: relative; }
+        .cat-pill.active { color: var(--secondary); font-weight: 700; }
+        .cat-pill.active::after { content: ''; position: absolute; bottom: -10px; left: 0; width: 100%; height: 2px; background: var(--secondary); }
+
+        /* --- PRODUCT GRID --- */
+        .grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; padding: 8px; }
+        .product-card { background: var(--white); border-radius: var(--radius); overflow: hidden; box-shadow: var(--shadow); display: flex; flex-direction: column; position: relative; }
+        .img-container { width: 100%; aspect-ratio: 1/1; background: #f9f9f9; position: relative; overflow: hidden; }
+        .img-container img { width: 100%; height: 100%; object-fit: cover; }
+        
+        .p-details { padding: 10px; display: flex; flex-direction: column; flex-grow: 1; }
+        .p-title { margin: 0 0 5px 0; font-size: 0.85rem; font-weight: 400; color: #333; line-height: 1.3; height: 2.6em; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+        
+        .p-price-row { display: flex; align-items: baseline; gap: 5px; margin-bottom: 5px; }
+        .p-price { font-size: 1.1rem; font-weight: 800; color: var(--primary); }
+        .p-currency { font-size: 0.7rem; font-weight: 600; }
+        .p-old-price { font-size: 0.75rem; text-decoration: line-through; color: #999; }
+        
+        .p-meta { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+        .p-sales { font-size: 0.7rem; color: #777; background: #f0f0f0; padding: 2px 4px; border-radius: 2px; }
+        
+        /* Controles en la tarjeta */
+        .card-controls { margin-top: auto; display: flex; justify-content: space-between; align-items: center; }
+        .qty-mini { display: flex; align-items: center; border: 1px solid #ddd; border-radius: 20px; overflow: hidden; background: #fff; }
+        .qty-mini-btn { width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; background: none; border: none; font-size: 0.9rem; color: #333; cursor: pointer; }
+        .qty-mini-val { font-size: 0.8rem; font-weight: 600; min-width: 16px; text-align: center; }
+        .add-btn-mini { background: var(--white); border: 1px solid var(--secondary); color: var(--secondary); width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.9rem; cursor: pointer; transition: 0.2s; }
+        .add-btn-mini:active { background: var(--secondary); color: white; }
+
+        .out-of-stock-overlay { position: absolute; top:0; left:0; width:100%; height:100%; background: rgba(255,255,255,0.8); display: flex; justify-content: center; align-items: center; font-weight: bold; color: #999; z-index: 10; font-size: 0.9rem; backdrop-filter: grayscale(1); }
+
+        /* --- FOOTER DE CONTACTO --- */
+        .shop-footer { background: #232f3e; color: white; padding: 30px 20px; margin-top: 20px; text-align: center; }
+        .trust-badges { display: flex; justify-content: center; gap: 15px; margin-bottom: 20px; flex-wrap: wrap; }
+        .badge-item { display: flex; flex-direction: column; align-items: center; gap: 5px; font-size: 0.8rem; opacity: 0.9; }
+        .badge-item i { font-size: 1.5rem; color: var(--gold); }
+        .contact-info { margin-top: 20px; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 20px; }
+        .contact-row { display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 10px; font-size: 0.95rem; }
+        .contact-row i { color: var(--secondary); }
+        .copyright { font-size: 0.75rem; color: #888; margin-top: 20px; }
+
+        /* --- FAB CART --- */
+        .fab-cart { position: fixed; bottom: 20px; right: 20px; background: var(--primary); color: white; width: 55px; height: 55px; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 1.3rem; box-shadow: 0 4px 15px rgba(0,0,0,0.3); cursor: pointer; z-index: 90; transition: transform 0.2s; }
+        .fab-cart:active { transform: scale(0.95); }
+        .cart-badge { position: absolute; top: -5px; right: -5px; background: var(--accent); color: white; font-size: 0.75rem; width: 22px; height: 22px; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-weight: bold; border: 2px solid white; }
+
+        /* --- MODALS --- */
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 200; backdrop-filter: blur(3px); align-items: flex-end; }
+        .modal.open { display: flex; }
+        .modal-content { background: var(--white); width: 100%; max-height: 85vh; border-radius: 16px 16px 0 0; padding: 20px; overflow-y: auto; animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1); position: relative; display: flex; flex-direction: column; }
+        @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+
+        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+        .modal-title-text { font-weight: 700; font-size: 1.2rem; }
+        .close-modal { font-size: 1.5rem; background: none; border: none; padding: 5px; cursor: pointer; color: #666; }
+
+        /* --- PRODUCT DETAIL SPECIFIC --- */
+        #product-modal .img-large { width: 100%; height: 300px; object-fit: contain; margin-bottom: 15px; background: #fff; }
+        .detail-price { font-size: 1.8rem; font-weight: 800; color: var(--accent); margin: 10px 0; }
+        .detail-mn { font-size: 1rem; color: #666; font-weight: 400; margin-left: 5px; }
+        .rating-interactive { display: flex; gap: 5px; margin: 10px 0; cursor: pointer; }
+        .rating-interactive i { font-size: 1.4rem; color: #ddd; transition: color 0.2s; }
+        .rating-interactive i.active { color: var(--gold); }
+        .rating-label { font-size: 0.9rem; color: #555; font-weight: 600; margin-bottom: 5px; display: block; }
+        
+        .detail-actions { display: flex; gap: 15px; margin-top: 20px; align-items: center; border-top: 1px solid #eee; padding-top: 15px; }
+        .qty-selector-large { display: flex; align-items: center; border: 1px solid #ccc; border-radius: 8px; height: 44px; }
+        .qty-btn-large { width: 40px; height: 100%; background: none; border: none; font-size: 1.2rem; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+        .qty-display-large { width: 40px; text-align: center; font-weight: bold; font-size: 1.1rem; }
+        .btn-add-large { flex-grow: 1; background: var(--secondary); color: white; border: none; height: 44px; border-radius: 8px; font-weight: bold; font-size: 1rem; cursor: pointer; }
+        
+        /* --- FORMS --- */
+        input, select, textarea { width: 100%; padding: 14px; margin-bottom: 15px; border: 1px solid #ddd; border-radius: 8px; font-size: 1rem; background: #f9f9f9; -webkit-appearance: none; }
+        .btn { width: 100%; padding: 14px; border: none; border-radius: 8px; font-size: 1rem; font-weight: bold; cursor: pointer; text-align: center; margin-bottom: 10px; }
+        .btn-primary { background: var(--primary); color: white; }
+        .btn-danger { background: #ff4444; color: white; }
+        .btn-success { background: #00a65a; color: white; }
+        .btn-info { background: #3498db; color: white; }
+
+        /* --- ADMIN OVERLAY --- */
+        #maintenance-overlay { position: fixed; top:0; left:0; width:100%; height:100%; background: #fff; z-index: 9999; display: none; flex-direction: column; justify-content: center; align-items: center; text-align: center; padding: 40px; }
+        .admin-controls-panel { background: #f0f0f0; padding: 15px; border-radius: 8px; margin-bottom: 10px; }
+
+    </style>
+</head>
+<body>
+
+    <!-- PANTALLA MANTENIMIENTO -->
+    <div id="maintenance-overlay">
+        <i class="fas fa-tools fa-4x" style="color: var(--secondary); margin-bottom: 20px;"></i>
+        <h2 style="color: #333;">TIENDA EN MANTENIMIENTO</h2>
+        <p style="color: #666; max-width: 300px; margin: 10px auto;">Estamos actualizando nuestro inventario para ofrecerte lo mejor. Vuelve en unos minutos.</p>
+        <button onclick="promptAdminLogin()" style="margin-top: 40px; background: transparent; border:none; color: #999; text-decoration: underline;">Acceso Propietario</button>
+    </div>
+
+    <!-- CABECERA -->
+    <header>
+        <div class="header-top">
+            <div class="logo">
+                <i class="fas fa-bolt" style="color: var(--gold);"></i>
+                PIN-PON <span>SHOP</span>
+                <span id="admin-indicator" style="display:none; background:red; color:white; font-size:0.5rem; padding:2px 4px; border-radius:4px; margin-left:5px;">ADMIN</span>
+            </div>
+            <i class="fas fa-bars menu-btn" onclick="openMenu()"></i>
+        </div>
+        <!-- BARRA DE BÚSQUEDA -->
+        <div class="search-container">
+            <div class="search-wrapper">
+                <i class="fas fa-search search-icon"></i>
+                <input type="text" class="search-input" id="search-bar" placeholder="Buscar en Pin-Pon Shop..." onkeyup="searchProducts()">
+            </div>
+        </div>
+    </header>
+
+    <!-- BANNER PROMOCIONAL -->
+    <div class="banner" id="promo-banner">
+        <h2 id="banner-title">¡Gran Apertura!</h2>
+        <p id="banner-subtitle">Envíos a todo Santiago de Cuba</p>
+        <div class="banner-edit-overlay" onclick="editBanner()">
+            <i class="fas fa-edit"></i> Editar Banner
+        </div>
+    </div>
+
+    <!-- CATEGORÍAS -->
+    <div class="categories-scroll" id="category-list">
+        <!-- Se llena con JS -->
+    </div>
+
+    <!-- REJILLA DE PRODUCTOS -->
+    <div class="grid" id="product-grid">
+        <!-- Se llena con JS -->
+    </div>
+
+    <!-- FOOTER CONTACTO -->
+    <footer class="shop-footer">
+        <div class="trust-badges">
+            <div class="badge-item">
+                <i class="fas fa-shield-alt"></i>
+                <span>Compra Segura</span>
+            </div>
+            <div class="badge-item">
+                <i class="fas fa-truck"></i>
+                <span>Domicilio Gratis</span>
+            </div>
+            <div class="badge-item">
+                <i class="fas fa-undo"></i>
+                <span>Garantía</span>
+            </div>
+        </div>
+        
+        <div class="contact-info">
+            <div class="contact-row">
+                <i class="fas fa-phone-alt"></i> 59207040
+            </div>
+            <div class="contact-row">
+                <i class="fas fa-envelope"></i> odh190302@gmail.com
+            </div>
+        </div>
+        
+        <div class="copyright">
+            © 2024 PIN-PON SHOP Tienda Virtual. Todos los derechos reservados.
+        </div>
+    </footer>
+
+    <!-- BOTÓN FLOTANTE CARRITO -->
+    <div class="fab-cart" onclick="openCart()">
+        <i class="fas fa-shopping-cart"></i>
+        <span class="cart-badge" id="cart-count">0</span>
+    </div>
+
+    <!-- ================= MODALES ================= -->
+
+    <!-- MENÚ / ADMIN -->
+    <div class="modal" id="menu-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <span class="modal-title-text">Menú</span>
+                <button class="close-modal" onclick="closeModal('menu-modal')">&times;</button>
+            </div>
+            
+            <div id="admin-panel" style="display:none;">
+                <div class="admin-controls-panel">
+                    <h4 style="margin-top:0;">🛠 Panel Administrador</h4>
+                    <label style="font-size:0.8rem;">Tasa de Cambio (1 USD = X MN)</label>
+                    <input type="number" id="exchange-rate" value="300" onchange="updateSettings()" style="margin-bottom:10px;">
+                    
+                    <button class="btn btn-success" onclick="openProductForm()"><i class="fas fa-plus"></i> Agregar Producto</button>
+                    <button class="btn btn-primary" onclick="openCategoryManager()"><i class="fas fa-list"></i> Gestionar Categorías</button>
+                </div>
+                <button class="btn btn-danger" onclick="logoutAdmin()">Cerrar Sesión Admin</button>
+            </div>
+
+            <button id="login-btn" class="btn btn-primary" onclick="promptAdminLogin()">Soy el Administrador</button>
+            <div style="margin-top:20px; font-size:0.9rem; color:#777; text-align:center;">
+                <p>PIN-PON SHOP v2.0</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- DETALLE PRODUCTO -->
+    <div class="modal" id="product-modal">
+        <div class="modal-content">
+            <button class="close-modal" style="position: absolute; right: 15px; top: 15px; z-index: 10;" onclick="closeModal('product-modal')">&times;</button>
+            
+            <img id="modal-img" class="img-large" src="" alt="">
+            
+            <h2 id="modal-title" style="margin: 0; font-size: 1.3rem;"></h2>
+            
+            <!-- Estrellas interactivas -->
+            <label class="rating-label">Clasifique nuestro producto:</label>
+            <div class="rating-interactive" id="modal-rating-container">
+                <i class="far fa-star" onclick="rateProduct(1)"></i>
+                <i class="far fa-star" onclick="rateProduct(2)"></i>
+                <i class="far fa-star" onclick="rateProduct(3)"></i>
+                <i class="far fa-star" onclick="rateProduct(4)"></i>
+                <i class="far fa-star" onclick="rateProduct(5)"></i>
+            </div>
+
+            <p id="modal-desc" style="color: #666; line-height: 1.5; font-size: 0.95rem;"></p>
+            
+            <div style="display: flex; align-items: baseline;">
+                <span class="detail-price" id="modal-price"></span>
+                <span class="detail-mn" id="modal-mn-price"></span>
+            </div>
+
+            <div class="detail-actions">
+                <div class="qty-selector-large">
+                    <button class="qty-btn-large" onclick="updateModalQty(-1)">-</button>
+                    <div class="qty-display-large" id="modal-qty-display">1</div>
+                    <button class="qty-btn-large" onclick="updateModalQty(1)">+</button>
+                </div>
+                <button class="btn-add-large" id="modal-add-btn" onclick="addToCartFromModal()">
+                    Agregar al Carrito
+                </button>
+            </div>
+            
+            <!-- BOTONES DE ADMINISTRADOR -->
+            <div id="admin-product-actions" style="display:none; margin-top: 15px; border-top: 1px dashed #ccc; padding-top: 15px;">
+                <p style="font-size: 0.8rem; font-weight: bold; color: var(--secondary);">OPCIONES ADMIN:</p>
+                <div style="display:flex; gap: 10px;">
+                    <button class="btn btn-info" onclick="editProductFromModal()">Editar Producto</button>
+                    <button class="btn btn-danger" onclick="deleteProductFromModal()">Eliminar</button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- CARRITO -->
+    <div class="modal" id="cart-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <span class="modal-title-text">Tu Carrito</span>
+                <button class="close-modal" onclick="closeModal('cart-modal')">&times;</button>
+            </div>
+            <div id="cart-items" style="flex-grow: 1; overflow-y: auto; margin-bottom: 20px;">
+                <!-- Items -->
+            </div>
+            <div style="border-top: 1px solid #eee; padding-top: 15px;">
+                <div style="display: flex; justify-content: space-between; font-weight: 800; font-size: 1.2rem; margin-bottom: 15px;">
+                    <span>Total:</span>
+                    <span id="cart-total">$0.00</span>
+                </div>
+                <button class="btn btn-secondary" style="background: var(--secondary); color: white;" onclick="openCheckout()">Pagar Ahora</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- CHECKOUT -->
+    <div class="modal" id="checkout-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <span class="modal-title-text">Finalizar Compra</span>
+                <button class="close-modal" onclick="closeModal('checkout-modal')">&times;</button>
+            </div>
+            <form id="checkout-form" onsubmit="processOrder(event)">
+                <label style="font-size:0.9rem; font-weight:bold;">Datos de Envío</label>
+                <input type="text" id="c-name" placeholder="Nombre y Apellidos" required>
+                <input type="text" id="c-ci" placeholder="Carnet de Identidad" required>
+                <input type="text" id="c-address" placeholder="Dirección Exacta" required>
+                <input type="tel" id="c-phone" placeholder="Teléfono / WhatsApp" required>
+                
+                <label style="font-size:0.9rem; font-weight:bold;">Fecha de Entrega</label>
+                <input type="date" id="c-date" required>
+                
+                <label style="font-size:0.9rem; font-weight:bold;">Forma de Pago</label>
+                <select id="c-payment">
+                    <option value="USD (Efectivo)">USD (Efectivo)</option>
+                    <option value="MN (Transferencia/Efectivo)">MN (CUP)</option>
+                    <option value="Euro">Euro</option>
+                    <option value="Zelle">Zelle</option>
+                </select>
+
+                <div style="background: #f0f0f0; padding: 10px; border-radius: 8px; margin-bottom: 20px; text-align: center;">
+                    <strong>Total a Pagar: <span id="checkout-total-display"></span></strong>
+                </div>
+
+                <button type="submit" class="btn btn-success"><i class="fab fa-whatsapp"></i> Confirmar Pedido por WhatsApp</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- ADMIN: EDITOR PRODUCTO -->
+    <div class="modal" id="admin-product-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <span class="modal-title-text">Editar Producto</span>
+                <button class="close-modal" onclick="closeModal('admin-product-modal')">&times;</button>
+            </div>
+            <form id="product-form" onsubmit="saveProduct(event)">
+                <input type="hidden" id="p-id">
+                <label>Nombre del Producto</label>
+                <input type="text" id="p-name" required>
+                
+                <label>Categoría</label>
+                <select id="p-category" required></select>
+                
+                <div style="display:flex; gap:10px;">
+                    <div style="flex:1">
+                        <label>Precio (USD)</label>
+                        <input type="number" id="p-price" step="0.01" required>
+                    </div>
+                    <div style="flex:1">
+                        <label>Precio Anterior (Oferta)</label>
+                        <input type="number" id="p-old-price" step="0.01">
+                    </div>
+                </div>
+
+                <label>Descripción</label>
+                <textarea id="p-desc" rows="3"></textarea>
+
+                <label>Foto (Subir desde Galería)</label>
+                <input type="file" id="p-image-file" accept="image/*" onchange="handleImageUpload(this)">
+                <input type="hidden" id="p-image-data">
+                <div id="p-image-preview" style="width: 100px; height: 100px; background: #eee; margin-bottom: 15px; border-radius: 8px; overflow: hidden;"></div>
+
+                <div style="margin-bottom: 20px;">
+                    <label style="display:flex; align-items:center; gap:10px; margin-bottom: 5px;">
+                        <input type="checkbox" id="p-is-new" style="width:auto; margin:0;"> 
+                        Marcar como NUEVO (Etiqueta visible)
+                    </label>
+                    <label style="display:flex; align-items:center; gap:10px;">
+                        <input type="checkbox" id="p-stock" style="width:auto; margin:0;" checked> 
+                        Producto en Existencia
+                    </label>
+                </div>
+
+                <button type="submit" class="btn btn-primary">Guardar Cambios</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- ADMIN: GESTOR CATEGORÍAS -->
+    <div class="modal" id="category-manager-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <span class="modal-title-text">Categorías</span>
+                <button class="close-modal" onclick="closeModal('category-manager-modal')">&times;</button>
+            </div>
+            <div id="category-list-admin" style="max-height: 300px; overflow-y: auto; margin-bottom: 15px;"></div>
+            <div style="display:flex; gap:10px;">
+                <input type="text" id="new-category-input" placeholder="Nueva Categoría" style="margin:0;">
+                <button class="btn btn-success" onclick="addCategory()" style="width: auto; margin:0;">+</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- CONFIGURACIÓN ---
+        const WHATSAPP_NUMBER = "5359207040";
+        const ADMIN_PASS = "oscardh190302";
+        
+        // --- ESTADO INICIAL ---
+        let state = {
+            isAdmin: false,
+            maintenance: false,
+            exchangeRate: 300,
+            bannerTitle: "Grandes Ofertas de Apertura",
+            bannerSub: "Compra con confianza en Santiago de Cuba",
+            categories: ["Electrodomésticos", "Vehículos", "Baterías", "Neumáticos", "Partes y piezas"],
+            products: [], // Se llenará con datos guardados o demo
+            cart: [],
+            ratings: {} // { productId: userRating }
+        };
+
+        let tempModalQty = 1;
+        let activeModalProductId = null;
+
+        // --- INICIO ---
+        function init() {
+            const savedData = localStorage.getItem('pinpon_data_v3');
+            if (savedData) {
+                const parsed = JSON.parse(savedData);
+                state = { ...state, ...parsed };
+                if(!state.ratings) state.ratings = {};
+            } else {
+                seedDemoData();
+            }
+            renderAll();
+        }
+
+        function seedDemoData() {
+            state.products = [
+                { id: 1, name: "Batería de Litio 72V 40Ah", category: "Baterías", price: 1200, oldPrice: 1350, stock: true, isNew: true, image: "https://via.placeholder.com/400?text=Bateria+72V", desc: "Batería de alta potencia para motos eléctricas. Garantía de 6 meses." },
+                { id: 2, name: "Neumático Deportivo R13", category: "Neumáticos", price: 55, oldPrice: 0, stock: true, isNew: false, image: "https://via.placeholder.com/400?text=Neumatico", desc: "Caucho de alta durabilidad y agarre." },
+                { id: 3, name: "Smartwatch Deportivo", category: "Electrodomésticos", price: 35, oldPrice: 45, stock: true, isNew: true, image: "https://via.placeholder.com/400?text=Reloj", desc: "Mide ritmo cardiaco, pasos y notificaciones." },
+                { id: 4, name: "Amortiguador Trasero", category: "Partes y piezas", price: 70, oldPrice: 0, stock: false, isNew: false, image: "https://via.placeholder.com/400?text=Amortiguador", desc: "Amortiguador de gas universal." }
+            ];
+            saveData();
+        }
+
+        function saveData() {
+            localStorage.setItem('pinpon_data_v3', JSON.stringify(state));
+        }
+
+        // --- RENDERIZADO ---
+        function renderAll() {
+            renderBanner();
+            renderCategories();
+            renderProducts();
+            updateCartIcon();
+            checkMaintenance();
+            
+            // UI Admin changes
+            document.getElementById('admin-indicator').style.display = state.isAdmin ? 'inline-block' : 'none';
+            document.getElementById('login-btn').style.display = state.isAdmin ? 'none' : 'block';
+            document.getElementById('admin-panel').style.display = state.isAdmin ? 'block' : 'none';
+            document.getElementById('exchange-rate').value = state.exchangeRate;
+        }
+
+        function renderBanner() {
+            document.getElementById('banner-title').innerText = state.bannerTitle;
+            document.getElementById('banner-subtitle').innerText = state.bannerSub;
+            document.querySelector('.banner-edit-overlay').style.display = state.isAdmin ? 'flex' : 'none';
+        }
+
+        function renderCategories() {
+            const container = document.getElementById('category-list');
+            let html = `<div class="cat-pill active" onclick="selectCategory('all', this)">Todos</div>`;
+            state.categories.forEach(cat => {
+                html += `<div class="cat-pill" onclick="selectCategory('${cat}', this)">${cat}</div>`;
+            });
+            container.innerHTML = html;
+        }
+
+        function selectCategory(cat, el) {
+            document.querySelectorAll('.cat-pill').forEach(c => c.classList.remove('active'));
+            el.classList.add('active');
+            renderProducts(cat);
+        }
+
+        function searchProducts() {
+            const term = document.getElementById('search-bar').value.toLowerCase();
+            renderProducts('all', term);
+        }
+
+        function renderProducts(filterCategory = 'all', searchTerm = '') {
+            const grid = document.getElementById('product-grid');
+            grid.innerHTML = '';
+
+            let filtered = state.products;
+
+            const activePill = document.querySelector('.cat-pill.active');
+            const activeCat = activePill ? activePill.innerText : 'Todos';
+            
+            if (activeCat !== 'Todos') {
+                filtered = filtered.filter(p => p.category === activeCat);
+            }
+
+            if (searchTerm) {
+                filtered = filtered.filter(p => 
+                    p.name.toLowerCase().includes(searchTerm) || 
+                    (p.desc && p.desc.toLowerCase().includes(searchTerm))
+                );
+            }
+
+            if (filtered.length === 0) {
+                grid.innerHTML = `<div style="grid-column: 1/-1; text-align:center; padding:40px; color:#999;">No se encontraron productos.</div>`;
+                return;
+            }
+
+            filtered.forEach(p => {
+                const isSale = p.oldPrice && p.oldPrice > p.price;
+                const percent = isSale ? Math.round(((p.oldPrice - p.price) / p.oldPrice) * 100) : 0;
+                const myRating = state.ratings[p.id] || 0;
+                const starColor = myRating > 0 ? 'var(--gold)' : '#ddd';
+
+                const card = document.createElement('div');
+                card.className = 'product-card';
+                card.onclick = (e) => {
+                    if(!e.target.closest('.qty-mini') && !e.target.closest('.add-btn-mini')) {
+                        openProductModal(p.id);
+                    }
+                };
+                
+                const stockOverlay = !p.stock ? `<div class="out-of-stock-overlay">AGOTADO</div>` : '';
+                const saleBadge = isSale ? `<div style="position:absolute; top:5px; left:5px; background:var(--accent); color:white; font-size:0.7rem; font-weight:bold; padding:2px 6px; border-radius:4px;">-${percent}%</div>` : '';
+                const newBadge = p.isNew ? `<span class="p-sales" style="background: var(--secondary); color: white;">Nuevo</span>` : '<span class="p-sales">Popular</span>';
+
+                card.innerHTML = `
+                    ${stockOverlay}
+                    <div class="img-container">
+                        <img src="${p.image}" alt="${p.name}" loading="lazy">
+                        ${saleBadge}
+                    </div>
+                    <div class="p-details">
+                        <h3 class="p-title">${p.name}</h3>
+                        
+                        <div class="p-meta">
+                            <div style="color:${starColor}; font-size:0.7rem;">
+                                <i class="fas fa-star"></i> ${myRating > 0 ? myRating + '.0' : '4.8'}
+                            </div>
+                            ${newBadge}
+                        </div>
+
+                        <div class="p-price-row">
+                            <span class="p-currency">USD</span>
+                            <span class="p-price">${p.price.toFixed(2)}</span>
+                            ${isSale ? `<span class="p-old-price">$${p.oldPrice.toFixed(2)}</span>` : ''}
+                        </div>
+
+                        <div class="card-controls">
+                            <div class="qty-mini" onclick="event.stopPropagation()">
+                                <button class="qty-mini-btn" onclick="updateCardQty(${p.id}, -1)">-</button>
+                                <span class="qty-mini-val" id="card-qty-${p.id}">1</span>
+                                <button class="qty-mini-btn" onclick="updateCardQty(${p.id}, 1)">+</button>
+                            </div>
+                            <div class="add-btn-mini" onclick="addFromCard(${p.id})">
+                                <i class="fas fa-cart-plus"></i>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        // --- LÓGICA DE PRODUCTO Y MODAL ---
+        function updateCardQty(id, change) {
+            const el = document.getElementById(`card-qty-${id}`);
+            let val = parseInt(el.innerText);
+            val += change;
+            if (val < 1) val = 1;
+            el.innerText = val;
+        }
+
+        function addFromCard(id) {
+            const qty = parseInt(document.getElementById(`card-qty-${id}`).innerText);
+            addToCart(id, qty);
+        }
+
+        function openProductModal(id) {
+            const p = state.products.find(x => x.id === id);
+            if (!p) return;
+            activeModalProductId = id;
+            tempModalQty = 1;
+
+            document.getElementById('modal-img').src = p.image;
+            document.getElementById('modal-title').innerText = p.name;
+            document.getElementById('modal-desc').innerText = p.desc || "Sin descripción detallada.";
+            document.getElementById('modal-price').innerText = `$${p.price.toFixed(2)}`;
+            
+            const mnVal = (p.price * state.exchangeRate).toFixed(0);
+            document.getElementById('modal-mn-price').innerText = `(${mnVal} CUP)`;
+
+            document.getElementById('modal-qty-display').innerText = "1";
+            
+            renderModalStars(state.ratings[id] || 0);
+
+            const btn = document.getElementById('modal-add-btn');
+            if (p.stock) {
+                btn.disabled = false;
+                btn.style.background = "var(--secondary)";
+                btn.innerHTML = `Agregar <i class="fas fa-cart-plus"></i>`;
+            } else {
+                btn.disabled = true;
+                btn.style.background = "#ccc";
+                btn.innerText = "Agotado";
+            }
+
+            // CONTROLES ADMIN VISIBLES
+            const adminActions = document.getElementById('admin-product-actions');
+            if (state.isAdmin) {
+                adminActions.style.display = 'block';
+            } else {
+                adminActions.style.display = 'none';
+            }
+
+            openModal('product-modal');
+        }
+
+        function updateModalQty(change) {
+            tempModalQty += change;
+            if (tempModalQty < 1) tempModalQty = 1;
+            document.getElementById('modal-qty-display').innerText = tempModalQty;
+        }
+
+        function addToCartFromModal() {
+            addToCart(activeModalProductId, tempModalQty);
+            closeModal('product-modal');
+        }
+
+        // --- SISTEMA DE ESTRELLAS ---
+        function renderModalStars(rating) {
+            const container = document.getElementById('modal-rating-container');
+            const stars = container.querySelectorAll('i');
+            stars.forEach((star, index) => {
+                if (index < rating) {
+                    star.classList.add('active');
+                    star.classList.remove('far');
+                    star.classList.add('fas');
+                } else {
+                    star.classList.remove('active');
+                    star.classList.remove('fas');
+                    star.classList.add('far');
+                }
+            });
+        }
+
+        function rateProduct(stars) {
+            if (activeModalProductId) {
+                state.ratings[activeModalProductId] = stars;
+                saveData();
+                renderModalStars(stars);
+                renderProducts(); 
+            }
+        }
+
+        // --- CARRITO ---
+        function addToCart(id, qty) {
+            const p = state.products.find(x => x.id === id);
+            if (!p || !p.stock) return;
+
+            const existing = state.cart.find(x => x.id === id);
+            if (existing) {
+                existing.qty += qty;
+            } else {
+                state.cart.push({ id: id, qty: qty });
+            }
+            saveData();
+            updateCartIcon();
+            const badge = document.getElementById('cart-count');
+            badge.style.transform = "scale(1.5)";
+            setTimeout(() => badge.style.transform = "scale(1)", 200);
+        }
+
+        function updateCartIcon() {
+            const total = state.cart.reduce((sum, item) => sum + item.qty, 0);
+            document.getElementById('cart-count').innerText = total;
+        }
+
+        function openCart() {
+            const container = document.getElementById('cart-items');
+            container.innerHTML = '';
+            let totalUSD = 0;
+
+            if (state.cart.length === 0) {
+                container.innerHTML = `<div style="text-align:center; padding:20px; color:#999;">El carrito está vacío ☹️</div>`;
+                document.getElementById('cart-total').innerText = "$0.00";
+                openModal('cart-modal');
+                return;
+            }
+
+            state.cart.forEach((item, idx) => {
+                const p = state.products.find(x => x.id === item.id);
+                if (!p) return;
+                const subtotal = p.price * item.qty;
+                totalUSD += subtotal;
+
+                container.innerHTML += `
+                    <div style="display:flex; gap:10px; margin-bottom:15px; border-bottom:1px solid #f9f9f9; padding-bottom:10px;">
+                        <img src="${p.image}" style="width:50px; height:50px; object-fit:cover; border-radius:4px;">
+                        <div style="flex:1;">
+                            <div style="font-weight:600; font-size:0.9rem;">${p.name}</div>
+                            <div style="font-size:0.8rem; color:#666;">$${p.price} x ${item.qty}</div>
+                        </div>
+                        <div style="display:flex; flex-direction:column; align-items:flex-end;">
+                            <div style="font-weight:bold;">$${subtotal.toFixed(2)}</div>
+                            <button onclick="removeFromCart(${idx})" style="color:red; background:none; border:none; font-size:0.8rem; margin-top:5px;">Eliminar</button>
+                        </div>
+                    </div>
+                `;
+            });
+
+            const totalMN = (totalUSD * state.exchangeRate).toFixed(0);
+            document.getElementById('cart-total').innerText = `$${totalUSD.toFixed(2)} (${totalMN} MN)`;
+            openModal('cart-modal');
+        }
+
+        function removeFromCart(idx) {
+            state.cart.splice(idx, 1);
+            saveData();
+            openCart(); 
+        }
+
+        // --- CHECKOUT & WHATSAPP ---
+        function openCheckout() {
+            if (state.cart.length === 0) return alert("Añade productos primero.");
+            closeModal('cart-modal');
+            openModal('checkout-modal');
+            let t = 0;
+            state.cart.forEach(i => {
+                const p = state.products.find(x => x.id === i.id);
+                if(p) t += p.price * i.qty;
+            });
+            const mn = (t * state.exchangeRate).toFixed(0);
+            document.getElementById('checkout-total-display').innerText = `$${t.toFixed(2)} USD / ${mn} MN`;
+        }
+
+        function processOrder(e) {
+            e.preventDefault();
+            
+            const formData = {
+                name: document.getElementById('c-name').value,
+                ci: document.getElementById('c-ci').value,
+                addr: document.getElementById('c-address').value,
+                phone: document.getElementById('c-phone').value,
+                date: document.getElementById('c-date').value,
+                pay: document.getElementById('c-payment').value
+            };
+
+            let msg = `🛍 *NUEVO PEDIDO - PIN-PON SHOP*\n`;
+            msg += `--------------------------------\n`;
+            msg += `👤 *Cliente:* ${formData.name}\n`;
+            msg += `🆔 *CI:* ${formData.ci}\n`;
+            msg += `📞 *Contacto:* ${formData.phone}\n`;
+            msg += `📍 *Dirección:* ${formData.addr}\n`;
+            msg += `📅 *Entrega:* ${formData.date}\n`;
+            msg += `💳 *Pago:* ${formData.pay}\n`;
+            msg += `--------------------------------\n`;
+            msg += `*DETALLES DEL PEDIDO:*\n`;
+
+            let total = 0;
+            state.cart.forEach(item => {
+                const p = state.products.find(x => x.id === item.id);
+                if (p) {
+                    const sub = p.price * item.qty;
+                    total += sub;
+                    msg += `▫️ ${p.name} (x${item.qty}) - $${sub.toFixed(2)}\n`;
+                }
+            });
+
+            const totalMN = (total * state.exchangeRate).toFixed(0);
+            msg += `\n💰 *TOTAL FINAL:* $${total.toFixed(2)} USD\n`;
+            msg += `💵 *En CUP:* ${totalMN} MN\n`;
+            msg += `--------------------------------\n`;
+            msg += `Confirmo que los datos son correctos.`;
+
+            const url = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(msg)}`;
+            window.open(url, '_blank');
+
+            state.cart = [];
+            saveData();
+            location.reload(); 
+        }
+
+        // --- ADMIN FUNCTIONS ---
+        function promptAdminLogin() {
+            const pass = prompt("Contraseña de Administrador:");
+            if (pass === ADMIN_PASS) {
+                state.isAdmin = true;
+                state.maintenance = true;
+                saveData();
+                location.reload();
+            } else {
+                alert("Contraseña incorrecta.");
+            }
+        }
+
+        function logoutAdmin() {
+            state.isAdmin = false;
+            state.maintenance = false;
+            saveData();
+            location.reload();
+        }
+
+        function checkMaintenance() {
+            const overlay = document.getElementById('maintenance-overlay');
+            if (state.maintenance && !state.isAdmin) {
+                overlay.style.display = 'flex';
+                document.body.style.overflow = 'hidden';
+            } else {
+                overlay.style.display = 'none';
+                document.body.style.overflow = 'auto';
+            }
+        }
+
+        function editBanner() {
+            if(!state.isAdmin) return;
+            const t = prompt("Nuevo Título:", state.bannerTitle);
+            const s = prompt("Nuevo Subtítulo:", state.bannerSub);
+            if(t) state.bannerTitle = t;
+            if(s) state.bannerSub = s;
+            saveData();
+            renderBanner();
+        }
+
+        function updateSettings() {
+            state.exchangeRate = parseFloat(document.getElementById('exchange-rate').value);
+            saveData();
+        }
+
+        // GESTIÓN PRODUCTOS
+        function openProductForm() {
+            document.getElementById('product-form').reset();
+            document.getElementById('p-id').value = '';
+            document.getElementById('p-image-preview').innerHTML = '';
+            
+            const sel = document.getElementById('p-category');
+            sel.innerHTML = '';
+            state.categories.forEach(c => sel.innerHTML += `<option value="${c}">${c}</option>`);
+
+            openModal('admin-product-modal');
+        }
+
+        function editProductFromModal() {
+            if (!activeModalProductId) return;
+            closeModal('product-modal');
+            const p = state.products.find(x => x.id === activeModalProductId);
+            
+            openProductForm();
+            document.getElementById('p-id').value = p.id;
+            document.getElementById('p-name').value = p.name;
+            document.getElementById('p-category').value = p.category;
+            document.getElementById('p-price').value = p.price;
+            document.getElementById('p-old-price').value = p.oldPrice || '';
+            document.getElementById('p-desc').value = p.desc || '';
+            document.getElementById('p-stock').checked = p.stock;
+            document.getElementById('p-is-new').checked = p.isNew || false;
+            document.getElementById('p-image-data').value = p.image;
+            document.getElementById('p-image-preview').innerHTML = `<img src="${p.image}" style="width:100%; height:100%; object-fit:cover;">`;
+        }
+
+        function deleteProductFromModal() {
+            if (!activeModalProductId) return;
+            if(confirm("¿Estás seguro de eliminar este producto permanentemente?")) {
+                state.products = state.products.filter(x => x.id !== activeModalProductId);
+                saveData();
+                closeModal('product-modal');
+                renderProducts();
+            }
+        }
+
+        function handleImageUpload(input) {
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    document.getElementById('p-image-data').value = e.target.result;
+                    document.getElementById('p-image-preview').innerHTML = `<img src="${e.target.result}" style="width:100%; height:100%; object-fit:cover;">`;
+                }
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+
+        function saveProduct(e) {
+            e.preventDefault();
+            const id = document.getElementById('p-id').value;
+            const newP = {
+                id: id ? parseInt(id) : Date.now(),
+                name: document.getElementById('p-name').value,
+                category: document.getElementById('p-category').value,
+                price: parseFloat(document.getElementById('p-price').value),
+                oldPrice: document.getElementById('p-old-price').value ? parseFloat(document.getElementById('p-old-price').value) : 0,
+                desc: document.getElementById('p-desc').value,
+                stock: document.getElementById('p-stock').checked,
+                isNew: document.getElementById('p-is-new').checked,
+                image: document.getElementById('p-image-data').value || "https://via.placeholder.com/400"
+            };
+
+            if (id) {
+                const idx = state.products.findIndex(x => x.id == id);
+                state.products[idx] = newP;
+            } else {
+                state.products.push(newP);
+            }
+            saveData();
+            closeModal('admin-product-modal');
+            renderProducts();
+        }
+
+        // GESTIÓN CATEGORÍAS
+        function openCategoryManager() {
+            const list = document.getElementById('category-list-admin');
+            list.innerHTML = '';
+            state.categories.forEach((c, i) => {
+                list.innerHTML += `
+                    <div style="display:flex; justify-content:space-between; padding:10px; border-bottom:1px solid #eee; align-items:center;">
+                        <span style="font-weight:500;">${c}</span>
+                        <button onclick="deleteCategory(${i})" style="color:white; background:#ff4444; border:none; padding:5px 10px; border-radius:4px; cursor:pointer;">Eliminar</button>
+                    </div>`;
+            });
+            openModal('category-manager-modal');
+        }
+
+        function addCategory() {
+            const val = document.getElementById('new-category-input').value.trim();
+            if(val && !state.categories.includes(val)) {
+                state.categories.push(val);
+                saveData();
+                document.getElementById('new-category-input').value = '';
+                openCategoryManager();
+                renderCategories();
+            } else if (state.categories.includes(val)) {
+                alert("Esa categoría ya existe.");
+            }
+        }
+
+        function deleteCategory(idx) {
+            if(confirm(`¿Eliminar la categoría "${state.categories[idx]}"?`)) {
+                state.categories.splice(idx, 1);
+                saveData();
+                openCategoryManager();
+                renderCategories();
+            }
+        }
+
+        // HELPER MODALS
+        function openMenu() { openModal('menu-modal'); }
+        function openModal(id) { document.getElementById(id).classList.add('open'); }
+        function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+
+        // Start
+        init();
+
+    </script>
+</body>
+</html>
+
+
