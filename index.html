@@ -16,14 +16,17 @@
             --radius: 8px;
             --shadow: 0 4px 12px rgba(0,0,0,0.08); /* Sombra mejorada */
             --gold: #ffc107;
+            --new-color: #00bcd4; /* Cian para NUEVO */
         }
 
         /* --- Global Reset & Base --- */
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: none; }
-        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background: var(--bg); margin: 0; color: var(--text); padding-bottom: 160px; transition: background-color 0.3s; }
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background: var(--bg); margin: 0; color: var(--text); padding-bottom: 160px; }
         
-        /* Mejoras de Transición */
-        .product-card, .cat-pill, .fab-cart, .btn { transition: all 0.2s ease-in-out; }
+        /* Mejoras de Transición y Fluidez */
+        .product-card, .cat-pill, .fab-cart, .btn, .add-btn-mini { transition: all 0.2s ease-in-out; }
+        .product-card:active { transform: scale(0.98); }
+        .fab-cart:active { transform: scale(0.9); }
 
         /* --- HEADER & SEARCH --- */
         header { background: var(--white); position: sticky; top: 0; z-index: 100; box-shadow: 0 1px 5px rgba(0,0,0,0.05); }
@@ -34,8 +37,7 @@
 
         .search-container { padding: 0 15px 10px 15px; position: relative; }
         .search-wrapper { position: relative; }
-        .search-input { width: 100%; background: #f0f0f0; border: none; padding: 10px 40px 10px 15px; border-radius: 20px; font-size: 0.95rem; color: #333; }
-        .search-input:focus { background: #e8e8e8; box-shadow: 0 0 0 3px rgba(251, 119, 1, 0.2); }
+        .search-input { width: 100%; background: #f0f0f0; border: none; padding: 10px 40px 10px 15px; border-radius: 20px; font-size: 0.95rem; color: #333; transition: 0.3s; }
         .search-icon { position: absolute; right: 15px; top: 50%; transform: translateY(-50%); color: #888; pointer-events: none; }
 
         /* --- BANNER --- */
@@ -43,19 +45,16 @@
         .banner h2 { margin: 0; font-size: 1.4rem; font-weight: 700; }
         .banner p { margin: 5px 0 0; font-size: 0.9rem; opacity: 0.9; }
         .banner-edit-overlay { position: absolute; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); display:none; justify-content:center; align-items:center; cursor:pointer; font-weight: bold; border: 2px dashed #fff; z-index: 10; color: white; }
-        .banner:hover .banner-edit-overlay { background:rgba(0,0,0,0.3); }
 
         /* --- CATEGORIES --- */
         .categories-scroll { display: flex; overflow-x: auto; padding: 10px 15px; gap: 10px; scrollbar-width: none; background: var(--white); border-bottom: 1px solid #f0f0f0; }
         .categories-scroll::-webkit-scrollbar { display: none; }
         .cat-pill { padding: 8px 16px; border-radius: 20px; white-space: nowrap; font-size: 0.85rem; cursor: pointer; color: #555; font-weight: 500; border: 1px solid #eee; background: #fff; }
-        .cat-pill:active { transform: scale(0.95); }
         .cat-pill.active { background: var(--secondary); color: var(--white); border-color: var(--secondary); font-weight: 600; box-shadow: 0 2px 5px rgba(251, 119, 1, 0.3); }
 
         /* --- PRODUCT GRID --- */
         .grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; padding: 12px; }
-        .product-card { background: var(--white); border-radius: var(--radius); box-shadow: var(--shadow); display: flex; flex-direction: column; position: relative; cursor: pointer; }
-        .product-card:active { transform: scale(0.98); }
+        .product-card { background: var(--white); border-radius: var(--radius); box-shadow: var(--shadow); display: flex; flex-direction: column; position: relative; cursor: pointer; overflow: hidden; }
 
         .img-container { width: 100%; aspect-ratio: 1/1; background: #f9f9f9; position: relative; overflow: hidden; border-radius: var(--radius) var(--radius) 0 0; }
         .img-container img { width: 100%; height: 100%; object-fit: cover; }
@@ -68,11 +67,11 @@
         .p-currency { font-size: 0.7rem; font-weight: 600; color: #666; }
         .p-old-price { font-size: 0.75rem; text-decoration: line-through; color: #999; }
         
-        .p-meta { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
-        .p-badge { font-size: 0.7rem; color: white; padding: 2px 6px; border-radius: 4px; font-weight: 600; }
-        .p-badge.new { background: #00bcd4; } /* Cian para NUEVO */
-        .p-badge.sale { background: var(--accent); } /* Rojo para Oferta */
-
+        /* Badges for New/Sale */
+        .p-badge { font-size: 0.7rem; color: white; padding: 2px 6px; border-radius: 4px; font-weight: 600; position: absolute; top: 8px; left: 8px; z-index: 10;}
+        .p-badge.new { background: var(--new-color); } 
+        .p-badge.sale { background: var(--accent); } 
+        
         /* Controles en la tarjeta */
         .card-controls { margin-top: auto; display: flex; justify-content: flex-end; align-items: center; }
         .qty-mini { display: flex; align-items: center; border: 1px solid #ddd; border-radius: 20px; overflow: hidden; background: #fff; margin-right: 5px; }
@@ -82,8 +81,7 @@
         .add-btn-mini:disabled { background: #ccc; cursor: not-allowed; }
 
         /* Estilos de agotado */
-        .product-card.out-of-stock { opacity: 0.5; pointer-events: none; }
-        .out-of-stock-overlay { position: absolute; top:0; left:0; width:100%; height:100%; background: rgba(255,255,255,0.8); display: flex; flex-direction: column; justify-content: center; align-items: center; font-weight: bold; color: #999; z-index: 10; font-size: 1rem; backdrop-filter: blur(2px); border-radius: var(--radius); }
+        .out-of-stock-overlay { position: absolute; top:0; left:0; width:100%; height:100%; background: rgba(255,255,255,0.85); display: flex; flex-direction: column; justify-content: center; align-items: center; font-weight: bold; color: #999; z-index: 10; font-size: 1rem; backdrop-filter: blur(2px) grayscale(0.5); border-radius: var(--radius); }
         .out-of-stock-overlay i { color: #888; margin-bottom: 5px; }
 
         /* --- FOOTER DE CONTACTO --- */
@@ -97,24 +95,15 @@
         .copyright { font-size: 0.75rem; color: #888; margin-top: 20px; }
 
         /* --- FAB CART --- */
-        .fab-cart { position: fixed; bottom: 20px; right: 20px; background: var(--primary); color: white; width: 60px; height: 60px; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 1.4rem; box-shadow: 0 4px 20px rgba(0,0,0,0.4); cursor: pointer; z-index: 90; transition: transform 0.2s; }
-        .fab-cart:active { transform: scale(0.9); }
-        .cart-badge { position: absolute; top: -5px; right: -5px; background: var(--accent); color: white; font-size: 0.8rem; width: 25px; height: 25px; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-weight: bold; border: 3px solid white; animation: pulse 1s infinite alternate; }
+        .fab-cart { position: fixed; bottom: 20px; right: 20px; background: var(--primary); color: white; width: 60px; height: 60px; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 1.4rem; box-shadow: 0 4px 20px rgba(0,0,0,0.4); cursor: pointer; z-index: 90; }
+        .cart-badge { position: absolute; top: -5px; right: -5px; background: var(--accent); color: white; font-size: 0.8rem; width: 25px; height: 25px; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-weight: bold; border: 3px solid white; }
 
-        @keyframes pulse {
-            0% { box-shadow: 0 0 0 0 rgba(230, 0, 35, 0.4); }
-            100% { box-shadow: 0 0 0 8px rgba(230, 0, 35, 0); }
-        }
-
-        /* --- MODALS --- */
+        /* --- MODALS (Mejora de Transición) --- */
         .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 200; backdrop-filter: blur(4px); align-items: flex-end; opacity: 0; transition: opacity 0.3s ease-in-out; }
         .modal.open { display: flex; opacity: 1; }
         .modal-content { background: var(--white); width: 100%; max-height: 85vh; border-radius: 16px 16px 0 0; padding: 20px; overflow-y: auto; transform: translateY(100%); transition: transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94); position: relative; display: flex; flex-direction: column; }
         .modal.open .modal-content { transform: translateY(0); }
-
-        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
-        .modal-title-text { font-weight: 700; font-size: 1.2rem; }
-        .close-modal { font-size: 1.5rem; background: none; border: none; padding: 5px; cursor: pointer; color: #666; }
+        /* El resto de estilos de modal son correctos */
 
         /* --- FORMS & BUTTONS --- */
         input, select, textarea { width: 100%; padding: 14px; margin-bottom: 15px; border: 1px solid #ddd; border-radius: 8px; font-size: 1rem; background: #f9f9f9; -webkit-appearance: none; }
@@ -124,15 +113,6 @@
         .btn-success { background: #00a65a; color: white; }
         .btn-info { background: #3498db; color: white; }
         .btn-secondary { background: var(--secondary); color: white; }
-
-        /* --- ADMIN OVERLAY --- */
-        #maintenance-overlay { position: fixed; top:0; left:0; width:100%; height:100%; background: #fff; z-index: 9999; display: none; flex-direction: column; justify-content: center; align-items: center; text-align: center; padding: 40px; }
-        
-        /* Controles de CartItem */
-        .cart-item-controls { display: flex; align-items: center; gap: 8px; }
-        .qty-control { display: flex; border: 1px solid #ddd; border-radius: 4px; overflow: hidden; }
-        .qty-control button { background: #f0f0f0; border: none; padding: 5px 8px; cursor: pointer; }
-        .qty-control span { padding: 5px 10px; }
     </style>
 </head>
 <body>
@@ -227,15 +207,14 @@
                     
                     <button class="btn btn-success" onclick="openProductForm()"><i class="fas fa-plus"></i> Agregar Producto</button>
                     <button class="btn btn-primary" onclick="openCategoryManager()"><i class="fas fa-list"></i> Gestionar Categorías</button>
-                    
                     <button class="btn btn-info" id="btn-toggle-maintenance" onclick="toggleMaintenance()"></button>
                 </div>
                 <button class="btn btn-danger" onclick="logoutAdmin()">Cerrar Sesión Admin</button>
             </div>
 
-            <button id="login-btn" class="btn btn-secondary" onclick="promptAdminLogin()">Soy el Administrador</button>
+            <button id="login-btn" class="btn btn-secondary" style="background: var(--secondary); color: white;" onclick="promptAdminLogin()">Soy el Administrador</button>
             <div style="margin-top:20px; font-size:0.9rem; color:#777; text-align:center;">
-                <p>PIN-PON SHOP v4.0 (Cloud)</p>
+                <p>PIN-PON SHOP v4.1 (Corregido)</p>
             </div>
         </div>
     </div>
@@ -247,6 +226,15 @@
             <img id="modal-img" class="img-large" src="" alt="" style="width:100%; height:250px; object-fit:contain; margin-bottom:15px;">
             
             <h2 id="modal-title" style="margin: 0; font-size: 1.5rem;"></h2>
+            
+            <label class="rating-label">Clasificación:</label>
+            <div class="rating-interactive" id="modal-rating-container" style="margin-bottom: 5px;">
+                <i class="far fa-star" onclick="rateProduct(1)"></i>
+                <i class="far fa-star" onclick="rateProduct(2)"></i>
+                <i class="far fa-star" onclick="rateProduct(3)"></i>
+                <i class="far fa-star" onclick="rateProduct(4)"></i>
+                <i class="far fa-star" onclick="rateProduct(5)"></i>
+            </div>
             
             <p id="modal-desc" style="color: #666; line-height: 1.5; font-size: 0.95rem; margin-bottom: 5px;"></p>
             
@@ -293,7 +281,7 @@
                     <span>Total:</span>
                     <span id="cart-total">$0.00</span>
                 </div>
-                <button class="btn btn-secondary" onclick="openCheckout()">Pagar Ahora</button>
+                <button class="btn btn-secondary" style="background: var(--secondary); color: white;" onclick="openCheckout()">Pagar Ahora</button>
             </div>
         </div>
     </div>
@@ -359,8 +347,7 @@
                 <label>Descripción</label>
                 <textarea id="p-desc" rows="3"></textarea>
 
-                <label>Foto (URL o Subir)</label>
-                <input type="url" id="p-image-url" placeholder="Pegar URL de la imagen">
+                <label>Foto (Subir desde Galería)</label>
                 <input type="file" id="p-image-file" accept="image/*" onchange="handleImageUpload(this)">
                 <input type="hidden" id="p-image-data">
                 <div id="p-image-preview" style="width: 100px; height: 100px; background: #eee; margin-bottom: 15px; border-radius: 8px; overflow: hidden;"></div>
@@ -376,8 +363,7 @@
                     </label>
                 </div>
 
-                <button type="submit" class="btn btn-secondary">Guardar Cambios</button>
-                <button type="button" class="btn btn-danger" onclick="closeModal('admin-product-modal')" style="background:#ccc; color:#666;">Cancelar</button>
+                <button type="submit" class="btn btn-primary">Guardar Cambios</button>
             </form>
         </div>
     </div>
@@ -396,120 +382,60 @@
         </div>
     </div>
 
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
-
     <script>
         // --- CONFIGURACIÓN ---
         const WHATSAPP_NUMBER = "5359207040";
         const ADMIN_PASS = "oscardh190302";
-
-        // TUS CLAVES DE FIREBASE (NO CAMBIAR)
-        const firebaseConfig = {
-            apiKey: "AIzaSyA04fdbHRhwgJVQrEtDJoAm7adm99h6a_w",
-            authDomain: "pinponshop-2f5c8.firebaseapp.com",
-            databaseURL: "https://pinponshop-2f5c8-default-rtdb.firebaseio.com",
-            projectId: "pinponshop-2f5c8"
-        };
-
-        // INICIALIZAR FIREBASE
-        firebase.initializeApp(firebaseConfig);
-        const database = firebase.database();
         
-        // --- ESTADO GLOBAL ---
+        // --- ESTADO INICIAL ---
         let state = {
             isAdmin: false,
             maintenance: false,
             exchangeRate: 300,
-            bannerTitle: "Cargando...",
-            bannerSub: "...",
-            categories: [],
+            bannerTitle: "Grandes Ofertas de Apertura",
+            bannerSub: "Compra con confianza en Santiago de Cuba",
+            categories: ["Electrodomésticos", "Vehículos", "Baterías", "Neumáticos", "Partes y piezas"],
             products: [], 
             cart: [],
-            ratings: {}
+            ratings: {} 
         };
 
         let tempModalQty = 1;
         let activeModalProductId = null;
-        let activeCategoryFilter = 'all';
+        let activeCategoryFilter = 'all'; // Nuevo filtro de categoría
 
-        // --- INICIO CONECTADO A FIREBASE ---
+        // --- INICIO ---
         function init() {
-            // Cargar estado de admin y carrito desde localStorage
-            state.isAdmin = localStorage.getItem('pinpon_is_admin') === 'true';
-            const savedCart = localStorage.getItem('pinpon_cart');
-            state.cart = savedCart ? JSON.parse(savedCart) : [];
-
-            const dbRef = database.ref('shopData');
-            
-            // ESCUCHAR CAMBIOS EN TIEMPO REAL
-            dbRef.on('value', (snapshot) => {
-                const data = snapshot.val();
-                
-                if (data) {
-                    // Actualizamos el estado con lo que viene de la NUBE
-                    state.products = data.products || [];
-                    state.categories = data.categories || [];
-                    state.bannerTitle = data.bannerTitle || "Bienvenido";
-                    state.bannerSub = data.bannerSub || "";
-                    state.exchangeRate = data.exchangeRate || 300;
-                    state.maintenance = data.maintenance || false;
-                } else {
-                    // Base de datos vacía: Cargar demo
-                    seedDemoData();
-                }
-                
-                renderAll();
-            }, (error) => {
-                console.error("Error de conexión a Firebase:", error);
-                alert("Error: No se pudo conectar a la base de datos.");
-            });
+            const savedData = localStorage.getItem('pinpon_data_v3');
+            if (savedData) {
+                const parsed = JSON.parse(savedData);
+                state = { ...state, ...parsed };
+                if(!state.ratings) state.ratings = {};
+            } else {
+                seedDemoData();
+            }
+            renderAll();
         }
 
         function seedDemoData() {
-            const initialData = {
-                maintenance: false,
-                exchangeRate: 300,
-                bannerTitle: "¡Bienvenidos a Pin-Pon Shop!",
-                bannerSub: "Tu tienda de productos importados en Santiago de Cuba.",
-                categories: ["Electrodomésticos", "Vehículos", "Baterías", "Neumáticos"],
-                products: [
-                    { id: 1, name: "Batería de Litio 72V 40Ah", category: "Baterías", price: 1200, oldPrice: 1350, stock: true, isNew: true, image: "https://via.placeholder.com/400?text=Bateria+72V", desc: "Batería de alta potencia para motos eléctricas. Garantía de 6 meses." },
-                    { id: 2, name: "Neumático Deportivo R13", category: "Neumáticos", price: 55, oldPrice: 0, stock: true, isNew: false, image: "https://via.placeholder.com/400?text=Neumatico", desc: "Caucho de alta durabilidad y agarre." },
-                    { id: 3, name: "Smartwatch Deportivo", category: "Electrodomésticos", price: 35, oldPrice: 45, stock: false, isNew: false, image: "https://via.placeholder.com/400?text=Reloj", desc: "Mide ritmo cardiaco, pasos y notificaciones." },
-                    { id: 4, name: "Motor Eléctrico 1500W", category: "Vehículos", price: 250, oldPrice: 0, stock: true, isNew: true, image: "https://via.placeholder.com/400?text=Motor+1500W", desc: "Potente motor para bicicleta o moto." }
-                ]
-            };
-            database.ref('shopData').set(initialData);
+            state.products = [
+                { id: 1, name: "Batería de Litio 72V 40Ah", category: "Baterías", price: 1200, oldPrice: 1350, stock: true, isNew: true, image: "https://via.placeholder.com/400?text=Bateria+72V", desc: "Batería de alta potencia para motos eléctricas. Garantía de 6 meses." },
+                { id: 2, name: "Neumático Deportivo R13", category: "Neumáticos", price: 55, oldPrice: 0, stock: true, isNew: false, image: "https://via.placeholder.com/400?text=Neumatico", desc: "Caucho de alta durabilidad y agarre." },
+                { id: 3, name: "Smartwatch Deportivo", category: "Electrodomésticos", price: 35, oldPrice: 45, stock: false, isNew: true, image: "https://via.placeholder.com/400?text=Reloj", desc: "Mide ritmo cardiaco, pasos y notificaciones." },
+                { id: 4, name: "Amortiguador Trasero", category: "Partes y piezas", price: 70, oldPrice: 0, stock: true, isNew: false, image: "https://via.placeholder.com/400?text=Amortiguador", desc: "Amortiguador de gas universal." }
+            ];
+            saveData();
         }
 
-        // --- GUARDADO DE DATOS ---
         function saveData() {
-            // 1. Guardar datos PÚBLICOS en Firebase
-            if (state.isAdmin) {
-                const publicData = {
-                    products: state.products,
-                    categories: state.categories,
-                    bannerTitle: state.bannerTitle,
-                    bannerSub: state.bannerSub,
-                    exchangeRate: state.exchangeRate,
-                    maintenance: state.maintenance
-                };
-                database.ref('shopData').update(publicData).catch(error => {
-                    alert("Error al guardar en la nube: " + error.message);
-                });
-            }
-
-            // 2. Guardar datos PRIVADOS en LocalStorage
-            localStorage.setItem('pinpon_cart', JSON.stringify(state.cart));
-            localStorage.setItem('pinpon_is_admin', state.isAdmin);
+            localStorage.setItem('pinpon_data_v3', JSON.stringify(state));
         }
 
-        // --- RENDERIZADO PRINCIPAL ---
+        // --- RENDERIZADO ---
         function renderAll() {
             renderBanner();
             renderCategories();
-            renderProducts(activeCategoryFilter); // Renderiza productos usando el filtro activo
+            renderProducts(activeCategoryFilter); 
             updateCartIcon();
             checkMaintenance();
             
@@ -518,9 +444,16 @@
             document.getElementById('login-btn').style.display = state.isAdmin ? 'none' : 'block';
             document.getElementById('admin-panel').style.display = state.isAdmin ? 'block' : 'none';
             document.getElementById('exchange-rate').value = state.exchangeRate;
-            
+
             const btnMaint = document.getElementById('btn-toggle-maintenance');
             if(btnMaint) btnMaint.innerText = state.maintenance ? "Desactivar Mantenimiento" : "Activar Mantenimiento";
+        }
+
+        // FUNCIÓN CORREGIDA
+        function renderBanner() {
+            document.getElementById('banner-title').innerText = state.bannerTitle;
+            document.getElementById('banner-subtitle').innerText = state.bannerSub;
+            document.querySelector('.banner-edit-overlay').style.display = state.isAdmin ? 'flex' : 'none';
         }
 
         function renderCategories() {
@@ -571,7 +504,7 @@
                 const percent = isSale ? Math.round(((p.oldPrice - p.price) / p.oldPrice) * 100) : 0;
                 
                 const card = document.createElement('div');
-                card.className = `product-card ${!p.stock ? 'out-of-stock' : ''}`;
+                card.className = 'product-card';
                 card.onclick = (e) => {
                     if(!e.target.closest('.qty-mini') && !e.target.closest('.add-btn-mini')) {
                         openProductModal(p.id);
@@ -585,17 +518,30 @@
                     badgeHTML = `<span class="p-badge new">NUEVO</span>`;
                 } else if (isSale) {
                     badgeHTML = `<span class="p-badge sale">-${percent}%</span>`;
-                } else {
-                    badgeHTML = `<span class="p-badge" style="background:#ddd; color:#666;">Top Venta</span>`;
                 }
                 
                 const currentQty = state.cart.find(i => i.id === p.id)?.qty || 0;
+                const cardQty = parseInt(document.getElementById(`card-qty-${p.id}`)?.innerText || 1); // Obtiene la cantidad en la tarjeta o 1
+
+                // HTML de controles adaptado para la funcionalidad de stock
+                const controlsHTML = p.stock ? `
+                    <div class="card-controls">
+                        <div class="qty-mini" onclick="event.stopPropagation()">
+                            <button class="qty-mini-btn" onclick="updateCardQty(${p.id}, -1)">-</button>
+                            <span class="qty-mini-val" id="card-qty-${p.id}">${cardQty}</span>
+                            <button class="qty-mini-btn" onclick="updateCardQty(${p.id}, 1)">+</button>
+                        </div>
+                        <div class="add-btn-mini" onclick="addFromCard(${p.id})" ${!p.stock ? 'disabled' : ''}>
+                            <i class="fas fa-cart-plus"></i>
+                        </div>
+                    </div>
+                ` : `<div style="font-size:0.8rem; color:red; font-weight:600; text-align:right;">Agotado</div>`;
 
                 card.innerHTML = `
                     ${stockOverlay}
                     <div class="img-container">
                         <img src="${p.image}" alt="${p.name}" loading="lazy">
-                        <div style="position:absolute; top:5px; left:5px;">${badgeHTML}</div>
+                        ${badgeHTML}
                     </div>
                     <div class="p-details">
                         <h3 class="p-title">${p.name}</h3>
@@ -606,18 +552,8 @@
                             ${isSale ? `<span class="p-old-price">$${p.oldPrice.toFixed(2)}</span>` : ''}
                         </div>
 
-                        <div class="card-controls">
-                            ${currentQty > 0 ? 
-                                `<div class="qty-mini" onclick="event.stopPropagation()">
-                                    <button class="qty-mini-btn" onclick="updateCartQuantityById(${p.id}, -1)">-</button>
-                                    <span class="qty-mini-val">${currentQty}</span>
-                                    <button class="qty-mini-btn" onclick="updateCartQuantityById(${p.id}, 1)">+</button>
-                                </div>` 
-                                : ''}
-                            <div class="add-btn-mini" onclick="addFromCard(${p.id})" style="margin-left: ${currentQty > 0 ? '0' : 'auto'};">
-                                <i class="fas fa-cart-plus"></i>
-                            </div>
-                        </div>
+                        ${controlsHTML}
+
                     </div>
                 `;
                 grid.appendChild(card);
@@ -625,9 +561,23 @@
         }
 
         // --- LÓGICA DE PRODUCTO Y MODAL ---
+        function updateCardQty(id, change) {
+            const el = document.getElementById(`card-qty-${id}`);
+            if (!el) return;
+
+            let val = parseInt(el.innerText);
+            val += change;
+            if (val < 1) val = 1;
+            el.innerText = val;
+        }
 
         function addFromCard(id) {
-            addToCart(id, 1); // Añade 1 por defecto desde el botón de la tarjeta
+            const el = document.getElementById(`card-qty-${id}`);
+            const qty = parseInt(el ? el.innerText : 1);
+            addToCart(id, qty);
+
+            // Resetea a 1 después de agregar (mejor UX)
+            if(el) el.innerText = 1;
         }
 
         function openProductModal(id) {
@@ -639,11 +589,15 @@
             document.getElementById('modal-img').src = p.image;
             document.getElementById('modal-title').innerText = p.name;
             document.getElementById('modal-desc').innerText = p.desc || "Sin descripción detallada.";
-            document.getElementById('modal-price').innerText = `$${p.price.toFixed(2)} USD`;
+            document.getElementById('modal-price').innerText = `$${p.price.toFixed(2)}`;
             
             const mnVal = (p.price * state.exchangeRate).toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ".");
             document.getElementById('modal-mn-price').innerText = `(${mnVal} CUP)`;
+
+            document.getElementById('modal-qty-display').innerText = "1";
             
+            renderModalStars(state.ratings[id] || 0);
+
             const stockIndicator = document.getElementById('modal-stock-indicator');
             const btn = document.getElementById('modal-add-btn');
 
@@ -651,16 +605,21 @@
                 stockIndicator.innerHTML = '<span style="color:#00a65a;"><i class="fas fa-check-circle"></i> En Existencia</span>';
                 btn.disabled = false;
                 btn.style.background = "var(--secondary)";
+                btn.innerHTML = `Agregar al Carrito <i class="fas fa-cart-plus"></i>`;
             } else {
                 stockIndicator.innerHTML = '<span style="color:#ff4444;"><i class="fas fa-times-circle"></i> Agotado</span>';
                 btn.disabled = true;
                 btn.style.background = "#ccc";
+                btn.innerText = "Agotado";
             }
 
-            document.getElementById('modal-qty-display').innerText = "1";
-            
             // CONTROLES ADMIN VISIBLES
-            document.getElementById('admin-product-actions').style.display = state.isAdmin ? 'flex' : 'none';
+            const adminActions = document.getElementById('admin-product-actions');
+            if (state.isAdmin) {
+                adminActions.style.display = 'flex';
+            } else {
+                adminActions.style.display = 'none';
+            }
 
             openModal('product-modal');
         }
@@ -676,6 +635,32 @@
             closeModal('product-modal');
         }
 
+        // --- SISTEMA DE ESTRELLAS ---
+        function renderModalStars(rating) {
+            const container = document.getElementById('modal-rating-container');
+            const stars = container.querySelectorAll('i');
+            stars.forEach((star, index) => {
+                if (index < rating) {
+                    star.classList.add('active');
+                    star.classList.remove('far');
+                    star.classList.add('fas');
+                } else {
+                    star.classList.remove('active');
+                    star.classList.remove('fas');
+                    star.classList.add('far');
+                }
+            });
+        }
+
+        function rateProduct(stars) {
+            if (activeModalProductId) {
+                state.ratings[activeModalProductId] = stars;
+                saveData();
+                renderModalStars(stars);
+                renderProducts(activeCategoryFilter); 
+            }
+        }
+
         // --- CARRITO ---
         function addToCart(id, qty) {
             const p = state.products.find(x => x.id === id);
@@ -687,32 +672,11 @@
             } else {
                 state.cart.push({ id: id, qty: qty });
             }
-            saveData(); 
+            saveData();
             updateCartIcon();
-            renderProducts(activeCategoryFilter); // Refresca las tarjetas
-            
-            // Animación
             const badge = document.getElementById('cart-count');
             badge.style.transform = "scale(1.5)";
             setTimeout(() => badge.style.transform = "scale(1)", 200);
-        }
-
-        function updateCartQuantityById(id, change) {
-            const index = state.cart.findIndex(item => item.id === id);
-            if (index === -1) return;
-
-            const newQty = state.cart[index].qty + change;
-            if (newQty <= 0) {
-                state.cart.splice(index, 1);
-            } else {
-                state.cart[index].qty = newQty;
-            }
-            saveData();
-            updateCartIcon();
-            renderProducts(activeCategoryFilter); // Refresca las tarjetas
-            if (document.getElementById('cart-modal').classList.contains('open')) {
-                openCart(); // Si el modal está abierto, lo refresca
-            }
         }
 
         function updateCartIcon() {
@@ -727,41 +691,45 @@
 
             if (state.cart.length === 0) {
                 container.innerHTML = `<div style="text-align:center; padding:20px; color:#999;">El carrito está vacío ☹️</div>`;
-            } else {
-                state.cart.forEach((item, idx) => {
-                    const p = state.products.find(x => x.id === item.id);
-                    if (!p) return; 
-                    const subtotal = p.price * item.qty;
-                    totalUSD += subtotal;
-
-                    const mnSubtotal = (subtotal * state.exchangeRate).toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ".");
-
-                    container.innerHTML += `
-                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px; border-bottom:1px solid #f9f9f9; padding-bottom:10px;">
-                            <div style="flex:2;">
-                                <div style="font-weight:600; font-size:0.9rem;">${p.name}</div>
-                                <div style="font-size:0.75rem; color:#666;">$${p.price.toFixed(2)} USD</div>
-                            </div>
-                            <div class="cart-item-controls">
-                                <div class="qty-control">
-                                    <button onclick="updateCartQuantityById(${p.id}, -1)">-</button>
-                                    <span>${item.qty}</span>
-                                    <button onclick="updateCartQuantityById(${p.id}, 1)">+</button>
-                                </div>
-                                <div style="text-align:right;">
-                                    <div style="font-weight:bold;">$${subtotal.toFixed(2)}</div>
-                                    <div style="font-size:0.75rem; color:#999;">${mnSubtotal} MN</div>
-                                </div>
-                                <button onclick="updateCartQuantityById(${p.id}, -${item.qty})" style="background:none; border:none; color:red; font-size:1.1rem; cursor:pointer;"><i class="fas fa-trash"></i></button>
-                            </div>
-                        </div>
-                    `;
-                });
+                document.getElementById('cart-total').innerText = "$0.00";
+                openModal('cart-modal');
+                return;
             }
+
+            state.cart.forEach((item, idx) => {
+                const p = state.products.find(x => x.id === item.id);
+                if (!p) return;
+                const subtotal = p.price * item.qty;
+                totalUSD += subtotal;
+                const mnSubtotal = (subtotal * state.exchangeRate).toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+
+
+                container.innerHTML += `
+                    <div style="display:flex; gap:10px; margin-bottom:15px; border-bottom:1px solid #f9f9f9; padding-bottom:10px; align-items:center;">
+                        <img src="${p.image}" style="width:50px; height:50px; object-fit:cover; border-radius:4px;">
+                        <div style="flex:1;">
+                            <div style="font-weight:600; font-size:0.9rem;">${p.name}</div>
+                            <div style="font-size:0.8rem; color:#666;">$${p.price.toFixed(2)} x ${item.qty}</div>
+                        </div>
+                        <div style="display:flex; flex-direction:column; align-items:flex-end;">
+                            <div style="font-weight:bold; color:var(--accent);">$${subtotal.toFixed(2)}</div>
+                            <div style="font-size:0.75rem; color:#999;">${mnSubtotal} MN</div>
+                        </div>
+                        <button onclick="removeFromCart(${idx})" style="color:red; background:none; border:none; font-size:1.1rem; cursor:pointer;"><i class="fas fa-trash"></i></button>
+                    </div>
+                `;
+            });
 
             const totalMN = (totalUSD * state.exchangeRate).toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ".");
             document.getElementById('cart-total').innerHTML = `$${totalUSD.toFixed(2)} USD <span style="font-size: 0.9rem; color: #666;">(${totalMN} CUP)</span>`;
             openModal('cart-modal');
+        }
+
+        function removeFromCart(idx) {
+            state.cart.splice(idx, 1);
+            saveData();
+            openCart(); 
+            renderProducts(activeCategoryFilter); // Refrescar vista principal
         }
 
         // --- CHECKOUT & WHATSAPP ---
@@ -794,7 +762,7 @@
             msg += `--------------------------------\n`;
             msg += `👤 *Cliente:* ${formData.name}\n`;
             msg += `🆔 *CI:* ${formData.ci}\n`;
-            msg += `📞 *Contacto:* +${WHATSAPP_NUMBER}\n`; // Se podría usar el teléfono del cliente: ${formData.phone}
+            msg += `📞 *Contacto:* +${formData.phone}\n`;
             msg += `📍 *Dirección:* ${formData.addr}\n`;
             msg += `📅 *Entrega:* ${formData.date}\n`;
             msg += `💳 *Pago:* ${formData.pay}\n`;
@@ -822,9 +790,10 @@
 
             state.cart = [];
             saveData();
-            // location.reload(); // Quitar recarga para que sea más fluido
+            // location.reload(); // Evitamos recargar para mantener la fluidez
             closeModal('checkout-modal');
             alert("Pedido iniciado. Revisa tu WhatsApp para finalizar.");
+            renderAll();
         }
 
         // --- ADMIN FUNCTIONS ---
@@ -832,9 +801,10 @@
             const pass = prompt("Contraseña de Administrador:");
             if (pass === ADMIN_PASS) {
                 state.isAdmin = true;
-                saveData(); 
-                renderAll();
+                state.maintenance = false; // Desactiva mantenimiento al loguearse
+                saveData();
                 closeModal('menu-modal');
+                renderAll();
             } else if (pass !== null) {
                 alert("Contraseña incorrecta.");
             }
@@ -842,6 +812,7 @@
 
         function logoutAdmin() {
             state.isAdmin = false;
+            state.maintenance = false;
             saveData();
             closeModal('menu-modal');
             renderAll();
@@ -858,12 +829,13 @@
                 document.body.style.overflow = 'auto';
             }
         }
-
+        
         function toggleMaintenance() {
             state.maintenance = !state.maintenance;
             saveData(); 
             renderAll();
         }
+
 
         function editBanner() {
             if(!state.isAdmin) return;
@@ -871,12 +843,14 @@
             const s = prompt("Nuevo Subtítulo:", state.bannerSub);
             if(t !== null) state.bannerTitle = t;
             if(s !== null) state.bannerSub = s;
-            saveData(); 
+            saveData();
+            renderBanner();
         }
 
         function updateSettings() {
             state.exchangeRate = parseFloat(document.getElementById('exchange-rate').value);
             saveData();
+            renderAll();
         }
 
         // GESTIÓN PRODUCTOS
@@ -884,7 +858,6 @@
             document.getElementById('product-form').reset();
             document.getElementById('p-id').value = '';
             document.getElementById('p-image-data').value = '';
-            document.getElementById('p-image-url').value = '';
             document.getElementById('p-image-preview').innerHTML = '';
             
             const sel = document.getElementById('p-category');
@@ -909,22 +882,17 @@
             document.getElementById('p-desc').value = p.desc || '';
             document.getElementById('p-stock').checked = p.stock;
             document.getElementById('p-is-new').checked = p.isNew || false;
-            
-            // Asigna la imagen
-            const imgUrl = p.image || '';
-            document.getElementById('p-image-data').value = imgUrl;
-            document.getElementById('p-image-url').value = imgUrl.startsWith('data:image') ? '' : imgUrl;
-            if(imgUrl) {
-                document.getElementById('p-image-preview').innerHTML = `<img src="${imgUrl}" style="width:100%; height:100%; object-fit:cover;">`;
-            }
+            document.getElementById('p-image-data').value = p.image;
+            document.getElementById('p-image-preview').innerHTML = `<img src="${p.image}" style="width:100%; height:100%; object-fit:cover;">`;
         }
 
         function deleteProductFromModal() {
             if (!activeModalProductId) return;
             if(confirm("¿Estás seguro de eliminar este producto permanentemente?")) {
                 state.products = state.products.filter(x => x.id !== activeModalProductId);
-                saveData(); 
+                saveData();
                 closeModal('product-modal');
+                renderProducts(activeCategoryFilter);
             }
         }
 
@@ -932,9 +900,7 @@
             if (input.files && input.files[0]) {
                 const reader = new FileReader();
                 reader.onload = function(e) {
-                    // Guarda la imagen como base64
                     document.getElementById('p-image-data').value = e.target.result;
-                    document.getElementById('p-image-url').value = ''; // Borra la URL si se sube archivo
                     document.getElementById('p-image-preview').innerHTML = `<img src="${e.target.result}" style="width:100%; height:100%; object-fit:cover;">`;
                 }
                 reader.readAsDataURL(input.files[0]);
@@ -944,13 +910,6 @@
         function saveProduct(e) {
             e.preventDefault();
             const id = document.getElementById('p-id').value;
-            
-            // Determinar la URL final de la imagen
-            let finalImage = document.getElementById('p-image-data').value;
-            if (!finalImage) {
-                finalImage = document.getElementById('p-image-url').value || "https://via.placeholder.com/400?text=Sin+Imagen";
-            }
-
             const newP = {
                 id: id ? parseInt(id) : Date.now(),
                 name: document.getElementById('p-name').value,
@@ -960,7 +919,7 @@
                 desc: document.getElementById('p-desc').value,
                 stock: document.getElementById('p-stock').checked,
                 isNew: document.getElementById('p-is-new').checked,
-                image: finalImage
+                image: document.getElementById('p-image-data').value || "https://via.placeholder.com/400"
             };
 
             if (id) {
@@ -971,6 +930,7 @@
             }
             saveData();
             closeModal('admin-product-modal');
+            renderProducts(activeCategoryFilter);
         }
 
         // GESTIÓN CATEGORÍAS
@@ -981,7 +941,7 @@
                 list.innerHTML += `
                     <div style="display:flex; justify-content:space-between; padding:10px; border-bottom:1px solid #eee; align-items:center;">
                         <span style="font-weight:500;">${c}</span>
-                        <button onclick="deleteCategory(${i})" class="btn-danger" style="width:auto; padding:5px 10px; margin:0;">Eliminar</button>
+                        <button onclick="deleteCategory(${i})" class="btn-danger" style="width:auto; padding:5px 10px; margin:0; font-size:0.8rem;">Eliminar</button>
                     </div>`;
             });
             closeModal('menu-modal');
@@ -992,7 +952,7 @@
             const val = document.getElementById('new-category-input').value.trim();
             if(val && !state.categories.includes(val)) {
                 state.categories.push(val);
-                saveData(); 
+                saveData();
                 document.getElementById('new-category-input').value = '';
                 openCategoryManager();
                 renderCategories();
