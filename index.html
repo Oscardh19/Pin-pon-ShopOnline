@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>PIN-PON SHOP</title>
-    <!-- Iconos para un look profesional -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <style>
         :root {
@@ -131,7 +130,6 @@
 </head>
 <body>
 
-    <!-- PANTALLA MANTENIMIENTO -->
     <div id="maintenance-overlay">
         <i class="fas fa-tools fa-4x" style="color: var(--secondary); margin-bottom: 20px;"></i>
         <h2 style="color: #333;">TIENDA EN MANTENIMIENTO</h2>
@@ -139,7 +137,6 @@
         <button onclick="promptAdminLogin()" style="margin-top: 40px; background: transparent; border:none; color: #999; text-decoration: underline;">Acceso Propietario</button>
     </div>
 
-    <!-- CABECERA -->
     <header>
         <div class="header-top">
             <div class="logo">
@@ -149,7 +146,6 @@
             </div>
             <i class="fas fa-bars menu-btn" onclick="openMenu()"></i>
         </div>
-        <!-- BARRA DE BÚSQUEDA -->
         <div class="search-container">
             <div class="search-wrapper">
                 <i class="fas fa-search search-icon"></i>
@@ -158,7 +154,6 @@
         </div>
     </header>
 
-    <!-- BANNER PROMOCIONAL -->
     <div class="banner" id="promo-banner">
         <h2 id="banner-title">¡Gran Apertura!</h2>
         <p id="banner-subtitle">Envíos a todo Santiago de Cuba</p>
@@ -167,17 +162,12 @@
         </div>
     </div>
 
-    <!-- CATEGORÍAS -->
     <div class="categories-scroll" id="category-list">
-        <!-- Se llena con JS -->
-    </div>
+        </div>
 
-    <!-- REJILLA DE PRODUCTOS -->
     <div class="grid" id="product-grid">
-        <!-- Se llena con JS -->
-    </div>
+        </div>
 
-    <!-- FOOTER CONTACTO -->
     <footer class="shop-footer">
         <div class="trust-badges">
             <div class="badge-item">
@@ -208,15 +198,11 @@
         </div>
     </footer>
 
-    <!-- BOTÓN FLOTANTE CARRITO -->
     <div class="fab-cart" onclick="openCart()">
         <i class="fas fa-shopping-cart"></i>
         <span class="cart-badge" id="cart-count">0</span>
     </div>
 
-    <!-- ================= MODALES ================= -->
-
-    <!-- MENÚ / ADMIN -->
     <div class="modal" id="menu-modal">
         <div class="modal-content">
             <div class="modal-header">
@@ -232,18 +218,20 @@
                     
                     <button class="btn btn-success" onclick="openProductForm()"><i class="fas fa-plus"></i> Agregar Producto</button>
                     <button class="btn btn-primary" onclick="openCategoryManager()"><i class="fas fa-list"></i> Gestionar Categorías</button>
+                    
+                    <label style="font-size:0.8rem; margin-top:10px; display:block;">Mantenimiento</label>
+                    <button class="btn btn-info" id="btn-toggle-maintenance" onclick="toggleMaintenance()">Activar/Desactivar</button>
                 </div>
                 <button class="btn btn-danger" onclick="logoutAdmin()">Cerrar Sesión Admin</button>
             </div>
 
             <button id="login-btn" class="btn btn-primary" onclick="promptAdminLogin()">Soy el Administrador</button>
             <div style="margin-top:20px; font-size:0.9rem; color:#777; text-align:center;">
-                <p>PIN-PON SHOP v2.0</p>
+                <p>PIN-PON SHOP v3.0 (Cloud)</p>
             </div>
         </div>
     </div>
 
-    <!-- DETALLE PRODUCTO -->
     <div class="modal" id="product-modal">
         <div class="modal-content">
             <button class="close-modal" style="position: absolute; right: 15px; top: 15px; z-index: 10;" onclick="closeModal('product-modal')">&times;</button>
@@ -252,7 +240,6 @@
             
             <h2 id="modal-title" style="margin: 0; font-size: 1.3rem;"></h2>
             
-            <!-- Estrellas interactivas -->
             <label class="rating-label">Clasifique nuestro producto:</label>
             <div class="rating-interactive" id="modal-rating-container">
                 <i class="far fa-star" onclick="rateProduct(1)"></i>
@@ -280,7 +267,6 @@
                 </button>
             </div>
             
-            <!-- BOTONES DE ADMINISTRADOR -->
             <div id="admin-product-actions" style="display:none; margin-top: 15px; border-top: 1px dashed #ccc; padding-top: 15px;">
                 <p style="font-size: 0.8rem; font-weight: bold; color: var(--secondary);">OPCIONES ADMIN:</p>
                 <div style="display:flex; gap: 10px;">
@@ -292,7 +278,6 @@
         </div>
     </div>
 
-    <!-- CARRITO -->
     <div class="modal" id="cart-modal">
         <div class="modal-content">
             <div class="modal-header">
@@ -300,8 +285,7 @@
                 <button class="close-modal" onclick="closeModal('cart-modal')">&times;</button>
             </div>
             <div id="cart-items" style="flex-grow: 1; overflow-y: auto; margin-bottom: 20px;">
-                <!-- Items -->
-            </div>
+                </div>
             <div style="border-top: 1px solid #eee; padding-top: 15px;">
                 <div style="display: flex; justify-content: space-between; font-weight: 800; font-size: 1.2rem; margin-bottom: 15px;">
                     <span>Total:</span>
@@ -312,7 +296,6 @@
         </div>
     </div>
 
-    <!-- CHECKOUT -->
     <div class="modal" id="checkout-modal">
         <div class="modal-content">
             <div class="modal-header">
@@ -346,7 +329,6 @@
         </div>
     </div>
 
-    <!-- ADMIN: EDITOR PRODUCTO -->
     <div class="modal" id="admin-product-modal">
         <div class="modal-content">
             <div class="modal-header">
@@ -396,7 +378,6 @@
         </div>
     </div>
 
-    <!-- ADMIN: GESTOR CATEGORÍAS -->
     <div class="modal" id="category-manager-modal">
         <div class="modal-content">
             <div class="modal-header">
@@ -411,20 +392,35 @@
         </div>
     </div>
 
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+
     <script>
         // --- CONFIGURACIÓN ---
         const WHATSAPP_NUMBER = "5359207040";
         const ADMIN_PASS = "oscardh190302";
+
+        // CONFIGURACIÓN DE FIREBASE DEL USUARIO
+        const firebaseConfig = {
+            apiKey: "AIzaSyA04fdbHRhwgJVQrEtDJoAm7adm99h6a_w",
+            authDomain: "pinponshop-2f5c8.firebaseapp.com",
+            databaseURL: "https://pinponshop-2f5c8-default-rtdb.firebaseio.com",
+            projectId: "pinponshop-2f5c8"
+        };
+
+        // INICIALIZAR FIREBASE
+        firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
         
         // --- ESTADO INICIAL ---
         let state = {
             isAdmin: false,
             maintenance: false,
             exchangeRate: 300,
-            bannerTitle: "Grandes Ofertas de Apertura",
-            bannerSub: "Compra con confianza en Santiago de Cuba",
-            categories: ["Electrodomésticos", "Vehículos", "Baterías", "Neumáticos", "Partes y piezas"],
-            products: [], // Se llenará con datos guardados o demo
+            bannerTitle: "Cargando...",
+            bannerSub: "...",
+            categories: [],
+            products: [], 
             cart: [],
             ratings: {} // { productId: userRating }
         };
@@ -432,34 +428,87 @@
         let tempModalQty = 1;
         let activeModalProductId = null;
 
-        // --- INICIO ---
+        // --- INICIO CONECTADO A FIREBASE ---
         function init() {
-            const savedData = localStorage.getItem('pinpon_data_v3');
-            if (savedData) {
-                const parsed = JSON.parse(savedData);
-                state = { ...state, ...parsed };
-                if(!state.ratings) state.ratings = {};
-            } else {
-                seedDemoData();
-            }
-            renderAll();
+            // Referencia a la base de datos
+            const dbRef = database.ref('shopData');
+            
+            // ESCUCHAR CAMBIOS EN TIEMPO REAL
+            dbRef.on('value', (snapshot) => {
+                const data = snapshot.val();
+                
+                if (data) {
+                    // Mantenemos datos que son LOCALES (por usuario)
+                    const currentAdmin = localStorage.getItem('pinpon_is_admin') === 'true';
+                    const savedCart = localStorage.getItem('pinpon_cart');
+                    const savedRatings = localStorage.getItem('pinpon_ratings');
+
+                    // Actualizamos el estado con lo que viene de la NUBE
+                    state.products = data.products || [];
+                    state.categories = data.categories || [];
+                    state.bannerTitle = data.bannerTitle || "Bienvenido";
+                    state.bannerSub = data.bannerSub || "";
+                    state.exchangeRate = data.exchangeRate || 300;
+                    state.maintenance = data.maintenance || false;
+                    
+                    // Restauramos lo local
+                    state.isAdmin = currentAdmin;
+                    state.cart = savedCart ? JSON.parse(savedCart) : [];
+                    state.ratings = savedRatings ? JSON.parse(savedRatings) : (data.ratings || {}); // Ratings pueden ser mixtos, pero por ahora locales o globales según prefieras. Aquí priorizamos local para "mi voto".
+                    
+                } else {
+                    // Base de datos vacía: Cargar demo
+                    seedDemoData();
+                }
+                
+                // Renderizar todo con los nuevos datos
+                renderAll();
+            });
         }
 
         function seedDemoData() {
-            state.products = [
-                { id: 1, name: "Batería de Litio 72V 40Ah", category: "Baterías", price: 1200, oldPrice: 1350, stock: true, isNew: true, image: "https://via.placeholder.com/400?text=Bateria+72V", desc: "Batería de alta potencia para motos eléctricas. Garantía de 6 meses." },
-                { id: 2, name: "Neumático Deportivo R13", category: "Neumáticos", price: 55, oldPrice: 0, stock: true, isNew: false, image: "https://via.placeholder.com/400?text=Neumatico", desc: "Caucho de alta durabilidad y agarre." },
-                { id: 3, name: "Smartwatch Deportivo", category: "Electrodomésticos", price: 35, oldPrice: 45, stock: true, isNew: true, image: "https://via.placeholder.com/400?text=Reloj", desc: "Mide ritmo cardiaco, pasos y notificaciones." },
-                { id: 4, name: "Amortiguador Trasero", category: "Partes y piezas", price: 70, oldPrice: 0, stock: false, isNew: false, image: "https://via.placeholder.com/400?text=Amortiguador", desc: "Amortiguador de gas universal." }
-            ];
-            saveData();
+            // Datos iniciales para subir a Firebase la primera vez
+            const initialData = {
+                maintenance: false,
+                exchangeRate: 300,
+                bannerTitle: "¡Gran Apertura!",
+                bannerSub: "Envíos a todo Santiago de Cuba",
+                categories: ["Electrodomésticos", "Vehículos", "Baterías", "Neumáticos", "Partes y piezas"],
+                products: [
+                    { id: 1, name: "Batería de Litio 72V 40Ah", category: "Baterías", price: 1200, oldPrice: 1350, stock: true, isNew: true, image: "https://via.placeholder.com/400?text=Bateria+72V", desc: "Batería de alta potencia para motos eléctricas. Garantía de 6 meses." },
+                    { id: 2, name: "Neumático Deportivo R13", category: "Neumáticos", price: 55, oldPrice: 0, stock: true, isNew: false, image: "https://via.placeholder.com/400?text=Neumatico", desc: "Caucho de alta durabilidad y agarre." },
+                    { id: 3, name: "Smartwatch Deportivo", category: "Electrodomésticos", price: 35, oldPrice: 45, stock: true, isNew: true, image: "https://via.placeholder.com/400?text=Reloj", desc: "Mide ritmo cardiaco, pasos y notificaciones." },
+                    { id: 4, name: "Amortiguador Trasero", category: "Partes y piezas", price: 70, oldPrice: 0, stock: false, isNew: false, image: "https://via.placeholder.com/400?text=Amortiguador", desc: "Amortiguador de gas universal." }
+                ]
+            };
+            
+            // Subir a Firebase
+            database.ref('shopData').set(initialData);
         }
 
+        // --- GUARDADO DE DATOS ---
         function saveData() {
-            localStorage.setItem('pinpon_data_v3', JSON.stringify(state));
+            // 1. Guardar datos PÚBLICOS en Firebase
+            if (state.isAdmin) {
+                const publicData = {
+                    products: state.products,
+                    categories: state.categories,
+                    bannerTitle: state.bannerTitle,
+                    bannerSub: state.bannerSub,
+                    exchangeRate: state.exchangeRate,
+                    maintenance: state.maintenance
+                    // Ratings globales se podrían manejar aquí si se quisiera promedio
+                };
+                database.ref('shopData').update(publicData);
+            }
+
+            // 2. Guardar datos PRIVADOS en LocalStorage (Carrito y Login)
+            localStorage.setItem('pinpon_cart', JSON.stringify(state.cart));
+            localStorage.setItem('pinpon_is_admin', state.isAdmin);
+            localStorage.setItem('pinpon_ratings', JSON.stringify(state.ratings));
         }
 
-        // --- RENDERIZADO ---
+        // --- RENDERIZADO (IGUAL QUE ANTES) ---
         function renderAll() {
             renderBanner();
             renderCategories();
@@ -472,6 +521,10 @@
             document.getElementById('login-btn').style.display = state.isAdmin ? 'none' : 'block';
             document.getElementById('admin-panel').style.display = state.isAdmin ? 'block' : 'none';
             document.getElementById('exchange-rate').value = state.exchangeRate;
+            
+            // Botón de toggle mantenimiento texto
+            const btnMaint = document.getElementById('btn-toggle-maintenance');
+            if(btnMaint) btnMaint.innerText = state.maintenance ? "Desactivar Mantenimiento" : "Activar Mantenimiento";
         }
 
         function renderBanner() {
@@ -482,9 +535,13 @@
 
         function renderCategories() {
             const container = document.getElementById('category-list');
-            let html = `<div class="cat-pill active" onclick="selectCategory('all', this)">Todos</div>`;
+            // Intentar mantener categoría activa si existe
+            const activePill = document.querySelector('.cat-pill.active');
+            const activeCat = activePill ? activePill.innerText : 'Todos';
+
+            let html = `<div class="cat-pill ${activeCat === 'Todos' ? 'active' : ''}" onclick="selectCategory('all', this)">Todos</div>`;
             state.categories.forEach(cat => {
-                html += `<div class="cat-pill" onclick="selectCategory('${cat}', this)">${cat}</div>`;
+                html += `<div class="cat-pill ${activeCat === cat ? 'active' : ''}" onclick="selectCategory('${cat}', this)">${cat}</div>`;
             });
             container.innerHTML = html;
         }
@@ -506,11 +563,13 @@
 
             let filtered = state.products;
 
-            const activePill = document.querySelector('.cat-pill.active');
-            const activeCat = activePill ? activePill.innerText : 'Todos';
-            
-            if (activeCat !== 'Todos') {
-                filtered = filtered.filter(p => p.category === activeCat);
+            // Filtro por categoría (si no viene explícito, buscar el activo)
+            if (filterCategory === 'all') {
+               const activePill = document.querySelector('.cat-pill.active');
+               const activeCat = activePill ? activePill.innerText : 'Todos';
+               if(activeCat !== 'Todos') filtered = filtered.filter(p => p.category === activeCat);
+            } else {
+               if(filterCategory !== 'all') filtered = filtered.filter(p => p.category === filterCategory);
             }
 
             if (searchTerm) {
@@ -520,7 +579,7 @@
                 );
             }
 
-            if (filtered.length === 0) {
+            if (!filtered || filtered.length === 0) {
                 grid.innerHTML = `<div style="grid-column: 1/-1; text-align:center; padding:40px; color:#999;">No se encontraron productos.</div>`;
                 return;
             }
@@ -666,9 +725,9 @@
         function rateProduct(stars) {
             if (activeModalProductId) {
                 state.ratings[activeModalProductId] = stars;
-                saveData();
+                saveData(); // Guarda localmente la puntuación del usuario
                 renderModalStars(stars);
-                renderProducts(); 
+                renderProducts(); // Actualiza visualmente
             }
         }
 
@@ -683,7 +742,7 @@
             } else {
                 state.cart.push({ id: id, qty: qty });
             }
-            saveData();
+            saveData(); // Guarda en localStorage
             updateCartIcon();
             const badge = document.getElementById('cart-count');
             badge.style.transform = "scale(1.5)";
@@ -709,7 +768,7 @@
 
             state.cart.forEach((item, idx) => {
                 const p = state.products.find(x => x.id === item.id);
-                if (!p) return;
+                if (!p) return; // Si se borró el producto
                 const subtotal = p.price * item.qty;
                 totalUSD += subtotal;
 
@@ -805,9 +864,9 @@
             const pass = prompt("Contraseña de Administrador:");
             if (pass === ADMIN_PASS) {
                 state.isAdmin = true;
-                state.maintenance = true;
-                saveData();
-                location.reload();
+                // state.maintenance = true; // No activar mantenimiento automático al entrar
+                saveData(); // Guardar login en localstorage
+                renderAll();
             } else {
                 alert("Contraseña incorrecta.");
             }
@@ -815,7 +874,7 @@
 
         function logoutAdmin() {
             state.isAdmin = false;
-            state.maintenance = false;
+            // state.maintenance = false; // No quitar mantenimiento al salir, quizás se quiera dejar activo
             saveData();
             location.reload();
         }
@@ -831,19 +890,25 @@
             }
         }
 
+        function toggleMaintenance() {
+            state.maintenance = !state.maintenance;
+            saveData(); // Guardar en Firebase
+            renderAll();
+        }
+
         function editBanner() {
             if(!state.isAdmin) return;
             const t = prompt("Nuevo Título:", state.bannerTitle);
             const s = prompt("Nuevo Subtítulo:", state.bannerSub);
             if(t) state.bannerTitle = t;
             if(s) state.bannerSub = s;
-            saveData();
+            saveData(); // Guardar en Firebase
             renderBanner();
         }
 
         function updateSettings() {
             state.exchangeRate = parseFloat(document.getElementById('exchange-rate').value);
-            saveData();
+            saveData(); // Guardar en Firebase
         }
 
         // GESTIÓN PRODUCTOS
@@ -881,9 +946,11 @@
             if (!activeModalProductId) return;
             if(confirm("¿Estás seguro de eliminar este producto permanentemente?")) {
                 state.products = state.products.filter(x => x.id !== activeModalProductId);
-                saveData();
+                saveData(); // Eliminar en Firebase
                 closeModal('product-modal');
-                renderProducts();
+                // renderProducts se llamará automáticamente por el listener de Firebase, 
+                // pero por rapidez visual en local:
+                renderProducts(); 
             }
         }
 
@@ -919,9 +986,9 @@
             } else {
                 state.products.push(newP);
             }
-            saveData();
+            saveData(); // Guardar en Firebase
             closeModal('admin-product-modal');
-            renderProducts();
+            // La actualización visual vendrá del listener de Firebase
         }
 
         // GESTIÓN CATEGORÍAS
@@ -942,7 +1009,7 @@
             const val = document.getElementById('new-category-input').value.trim();
             if(val && !state.categories.includes(val)) {
                 state.categories.push(val);
-                saveData();
+                saveData(); // Guardar en Firebase
                 document.getElementById('new-category-input').value = '';
                 openCategoryManager();
                 renderCategories();
@@ -954,7 +1021,7 @@
         function deleteCategory(idx) {
             if(confirm(`¿Eliminar la categoría "${state.categories[idx]}"?`)) {
                 state.categories.splice(idx, 1);
-                saveData();
+                saveData(); // Guardar en Firebase
                 openCategoryManager();
                 renderCategories();
             }
@@ -971,5 +1038,3 @@
     </script>
 </body>
 </html>
-
-
