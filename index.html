@@ -5,6 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>PIN-PON SHOP</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-storage-compat.js"></script>
+    
     <style>
         :root {
             --primary: #000000; /* Negro puro estilo Temu/Shein */
@@ -14,19 +19,12 @@
             --white: #ffffff;
             --text: #333333;
             --radius: 8px;
-            --shadow: 0 4px 12px rgba(0,0,0,0.08); /* Sombra mejorada */
+            --shadow: 0 2px 8px rgba(0,0,0,0.06);
             --gold: #ffc107;
-            --new-color: #00bcd4; /* Cian para NUEVO */
         }
 
-        /* --- Global Reset & Base --- */
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: none; }
         body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; background: var(--bg); margin: 0; color: var(--text); padding-bottom: 160px; }
-        
-        /* Mejoras de Transición y Fluidez */
-        .product-card, .cat-pill, .fab-cart, .btn, .add-btn-mini { transition: all 0.2s ease-in-out; }
-        .product-card:active { transform: scale(0.98); }
-        .fab-cart:active { transform: scale(0.9); }
 
         /* --- HEADER & SEARCH --- */
         header { background: var(--white); position: sticky; top: 0; z-index: 100; box-shadow: 0 1px 5px rgba(0,0,0,0.05); }
@@ -38,51 +36,48 @@
         .search-container { padding: 0 15px 10px 15px; position: relative; }
         .search-wrapper { position: relative; }
         .search-input { width: 100%; background: #f0f0f0; border: none; padding: 10px 40px 10px 15px; border-radius: 20px; font-size: 0.95rem; color: #333; transition: 0.3s; }
+        .search-input:focus { background: #e8e8e8; box-shadow: 0 0 0 2px rgba(251, 119, 1, 0.1); }
         .search-icon { position: absolute; right: 15px; top: 50%; transform: translateY(-50%); color: #888; pointer-events: none; }
 
         /* --- BANNER --- */
-        .banner { background: linear-gradient(135deg, #1a1a1a, #333); color: white; padding: 25px 20px; text-align: center; position: relative; margin-bottom: 5px; cursor: pointer; }
+        .banner { background: linear-gradient(135deg, #1a1a1a, #333); color: white; padding: 25px 20px; text-align: center; position: relative; margin-bottom: 5px; }
         .banner h2 { margin: 0; font-size: 1.4rem; font-weight: 700; }
         .banner p { margin: 5px 0 0; font-size: 0.9rem; opacity: 0.9; }
-        .banner-edit-overlay { position: absolute; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); display:none; justify-content:center; align-items:center; cursor:pointer; font-weight: bold; border: 2px dashed #fff; z-index: 10; color: white; }
+        .banner-edit-overlay { position: absolute; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); display:none; justify-content:center; align-items:center; cursor:pointer; font-weight: bold; border: 2px dashed #fff; z-index: 10; }
 
         /* --- CATEGORIES --- */
         .categories-scroll { display: flex; overflow-x: auto; padding: 10px 15px; gap: 10px; scrollbar-width: none; background: var(--white); border-bottom: 1px solid #f0f0f0; }
         .categories-scroll::-webkit-scrollbar { display: none; }
-        .cat-pill { padding: 8px 16px; border-radius: 20px; white-space: nowrap; font-size: 0.85rem; cursor: pointer; color: #555; font-weight: 500; border: 1px solid #eee; background: #fff; }
-        .cat-pill.active { background: var(--secondary); color: var(--white); border-color: var(--secondary); font-weight: 600; box-shadow: 0 2px 5px rgba(251, 119, 1, 0.3); }
+        .cat-pill { padding: 6px 14px; border-radius: 4px; white-space: nowrap; font-size: 0.85rem; cursor: pointer; color: #555; font-weight: 500; position: relative; }
+        .cat-pill.active { color: var(--secondary); font-weight: 700; }
+        .cat-pill.active::after { content: ''; position: absolute; bottom: -10px; left: 0; width: 100%; height: 2px; background: var(--secondary); }
 
         /* --- PRODUCT GRID --- */
-        .grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; padding: 12px; }
-        .product-card { background: var(--white); border-radius: var(--radius); box-shadow: var(--shadow); display: flex; flex-direction: column; position: relative; cursor: pointer; overflow: hidden; }
-
-        .img-container { width: 100%; aspect-ratio: 1/1; background: #f9f9f9; position: relative; overflow: hidden; border-radius: var(--radius) var(--radius) 0 0; }
+        .grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; padding: 8px; }
+        .product-card { background: var(--white); border-radius: var(--radius); overflow: hidden; box-shadow: var(--shadow); display: flex; flex-direction: column; position: relative; }
+        .img-container { width: 100%; aspect-ratio: 1/1; background: #f9f9f9; position: relative; overflow: hidden; }
         .img-container img { width: 100%; height: 100%; object-fit: cover; }
         
         .p-details { padding: 10px; display: flex; flex-direction: column; flex-grow: 1; }
-        .p-title { margin: 0 0 5px 0; font-size: 0.9rem; font-weight: 500; color: #333; line-height: 1.3; height: 2.6em; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+        .p-title { margin: 0 0 5px 0; font-size: 0.85rem; font-weight: 400; color: #333; line-height: 1.3; height: 2.6em; overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
         
         .p-price-row { display: flex; align-items: baseline; gap: 5px; margin-bottom: 5px; }
-        .p-price { font-size: 1.2rem; font-weight: 800; color: var(--accent); }
-        .p-currency { font-size: 0.7rem; font-weight: 600; color: #666; }
+        .p-price { font-size: 1.1rem; font-weight: 800; color: var(--primary); }
+        .p-currency { font-size: 0.7rem; font-weight: 600; }
         .p-old-price { font-size: 0.75rem; text-decoration: line-through; color: #999; }
         
-        /* Badges for New/Sale */
-        .p-badge { font-size: 0.7rem; color: white; padding: 2px 6px; border-radius: 4px; font-weight: 600; position: absolute; top: 8px; left: 8px; z-index: 10;}
-        .p-badge.new { background: var(--new-color); } 
-        .p-badge.sale { background: var(--accent); } 
+        .p-meta { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+        .p-sales { font-size: 0.7rem; color: #777; background: #f0f0f0; padding: 2px 4px; border-radius: 2px; }
         
         /* Controles en la tarjeta */
-        .card-controls { margin-top: auto; display: flex; justify-content: flex-end; align-items: center; }
-        .qty-mini { display: flex; align-items: center; border: 1px solid #ddd; border-radius: 20px; overflow: hidden; background: #fff; margin-right: 5px; }
+        .card-controls { margin-top: auto; display: flex; justify-content: space-between; align-items: center; }
+        .qty-mini { display: flex; align-items: center; border: 1px solid #ddd; border-radius: 20px; overflow: hidden; background: #fff; }
         .qty-mini-btn { width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; background: none; border: none; font-size: 0.9rem; color: #333; cursor: pointer; }
         .qty-mini-val { font-size: 0.8rem; font-weight: 600; min-width: 16px; text-align: center; }
-        .add-btn-mini { background: var(--secondary); color: white; width: 32px; height: 32px; border: none; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1rem; cursor: pointer; }
-        .add-btn-mini:disabled { background: #ccc; cursor: not-allowed; }
+        .add-btn-mini { background: var(--white); border: 1px solid var(--secondary); color: var(--secondary); width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.9rem; cursor: pointer; transition: 0.2s; }
+        .add-btn-mini:active { background: var(--secondary); color: white; }
 
-        /* Estilos de agotado */
-        .out-of-stock-overlay { position: absolute; top:0; left:0; width:100%; height:100%; background: rgba(255,255,255,0.85); display: flex; flex-direction: column; justify-content: center; align-items: center; font-weight: bold; color: #999; z-index: 10; font-size: 1rem; backdrop-filter: blur(2px) grayscale(0.5); border-radius: var(--radius); }
-        .out-of-stock-overlay i { color: #888; margin-bottom: 5px; }
+        .out-of-stock-overlay { position: absolute; top:0; left:0; width:100%; height:100%; background: rgba(255,255,255,0.8); display: flex; justify-content: center; align-items: center; font-weight: bold; color: #999; z-index: 10; font-size: 0.9rem; backdrop-filter: grayscale(1); }
 
         /* --- FOOTER DE CONTACTO --- */
         .shop-footer { background: #232f3e; color: white; padding: 30px 20px; margin-top: 20px; text-align: center; }
@@ -95,35 +90,56 @@
         .copyright { font-size: 0.75rem; color: #888; margin-top: 20px; }
 
         /* --- FAB CART --- */
-        .fab-cart { position: fixed; bottom: 20px; right: 20px; background: var(--primary); color: white; width: 60px; height: 60px; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 1.4rem; box-shadow: 0 4px 20px rgba(0,0,0,0.4); cursor: pointer; z-index: 90; }
-        .cart-badge { position: absolute; top: -5px; right: -5px; background: var(--accent); color: white; font-size: 0.8rem; width: 25px; height: 25px; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-weight: bold; border: 3px solid white; }
+        .fab-cart { position: fixed; bottom: 20px; right: 20px; background: var(--primary); color: white; width: 55px; height: 55px; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 1.3rem; box-shadow: 0 4px 15px rgba(0,0,0,0.3); cursor: pointer; z-index: 90; transition: transform 0.2s; }
+        .fab-cart:active { transform: scale(0.95); }
+        .cart-badge { position: absolute; top: -5px; right: -5px; background: var(--accent); color: white; font-size: 0.75rem; width: 22px; height: 22px; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-weight: bold; border: 2px solid white; }
 
-        /* --- MODALS (Mejora de Transición) --- */
-        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 200; backdrop-filter: blur(4px); align-items: flex-end; opacity: 0; transition: opacity 0.3s ease-in-out; }
-        .modal.open { display: flex; opacity: 1; }
-        .modal-content { background: var(--white); width: 100%; max-height: 85vh; border-radius: 16px 16px 0 0; padding: 20px; overflow-y: auto; transform: translateY(100%); transition: transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94); position: relative; display: flex; flex-direction: column; }
-        .modal.open .modal-content { transform: translateY(0); }
-        /* El resto de estilos de modal son correctos */
+        /* --- MODALS --- */
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 200; backdrop-filter: blur(3px); align-items: flex-end; }
+        .modal.open { display: flex; }
+        .modal-content { background: var(--white); width: 100%; max-height: 85vh; border-radius: 16px 16px 0 0; padding: 20px; overflow-y: auto; animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1); position: relative; display: flex; flex-direction: column; }
+        @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
 
-        /* --- FORMS & BUTTONS --- */
+        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+        .modal-title-text { font-weight: 700; font-size: 1.2rem; }
+        .close-modal { font-size: 1.5rem; background: none; border: none; padding: 5px; cursor: pointer; color: #666; }
+
+        /* --- PRODUCT DETAIL SPECIFIC --- */
+        #product-modal .img-large { width: 100%; height: 300px; object-fit: contain; margin-bottom: 15px; background: #fff; }
+        .detail-price { font-size: 1.8rem; font-weight: 800; color: var(--accent); margin: 10px 0; }
+        .detail-mn { font-size: 1rem; color: #666; font-weight: 400; margin-left: 5px; }
+        .rating-interactive { display: flex; gap: 5px; margin: 10px 0; cursor: pointer; }
+        .rating-interactive i { font-size: 1.4rem; color: #ddd; transition: color 0.2s; }
+        .rating-interactive i.active { color: var(--gold); }
+        .rating-label { font-size: 0.9rem; color: #555; font-weight: 600; margin-bottom: 5px; display: block; }
+        
+        .detail-actions { display: flex; gap: 15px; margin-top: 20px; align-items: center; border-top: 1px solid #eee; padding-top: 15px; }
+        .qty-selector-large { display: flex; align-items: center; border: 1px solid #ccc; border-radius: 8px; height: 44px; }
+        .qty-btn-large { width: 40px; height: 100%; background: none; border: none; font-size: 1.2rem; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+        .qty-display-large { width: 40px; text-align: center; font-weight: bold; font-size: 1.1rem; }
+        .btn-add-large { flex-grow: 1; background: var(--secondary); color: white; border: none; height: 44px; border-radius: 8px; font-weight: bold; font-size: 1rem; cursor: pointer; }
+        
+        /* --- FORMS --- */
         input, select, textarea { width: 100%; padding: 14px; margin-bottom: 15px; border: 1px solid #ddd; border-radius: 8px; font-size: 1rem; background: #f9f9f9; -webkit-appearance: none; }
         .btn { width: 100%; padding: 14px; border: none; border-radius: 8px; font-size: 1rem; font-weight: bold; cursor: pointer; text-align: center; margin-bottom: 10px; }
         .btn-primary { background: var(--primary); color: white; }
         .btn-danger { background: #ff4444; color: white; }
         .btn-success { background: #00a65a; color: white; }
         .btn-info { background: #3498db; color: white; }
-        .btn-secondary { background: var(--secondary); color: white; }
+
+        /* --- ADMIN OVERLAY --- */
+        #maintenance-overlay { position: fixed; top:0; left:0; width:100%; height:100%; background: #fff; z-index: 9999; display: none; flex-direction: column; justify-content: center; align-items: center; text-align: center; padding: 40px; }
+        .admin-controls-panel { background: #f0f0f0; padding: 15px; border-radius: 8px; margin-bottom: 10px; }
+
     </style>
 </head>
 <body>
 
-    <div class="modal" id="maintenance-overlay">
-        <div style="background: white; padding: 40px; border-radius: var(--radius); text-align: center; box-shadow: var(--shadow);">
-            <i class="fas fa-tools fa-4x" style="color: var(--secondary); margin-bottom: 20px;"></i>
-            <h2 style="color: #333;">TIENDA EN MANTENIMIENTO</h2>
-            <p style="color: #666; max-width: 300px; margin: 10px auto;">Estamos actualizando nuestro inventario. Vuelve en unos minutos.</p>
-            <button onclick="promptAdminLogin()" style="margin-top: 40px; background: transparent; border:none; color: var(--secondary); text-decoration: underline; font-weight: 600;">Acceso Propietario</button>
-        </div>
+    <div id="maintenance-overlay">
+        <i class="fas fa-tools fa-4x" style="color: var(--secondary); margin-bottom: 20px;"></i>
+        <h2 style="color: #333;">TIENDA EN MANTENIMIENTO</h2>
+        <p style="color: #666; max-width: 300px; margin: 10px auto;">Estamos actualizando nuestro inventario para ofrecerte lo mejor. Vuelve en unos minutos.</p>
+        <button onclick="promptAdminLogin()" style="margin-top: 40px; background: transparent; border:none; color: #999; text-decoration: underline;">Acceso Propietario</button>
     </div>
 
     <header>
@@ -131,7 +147,7 @@
             <div class="logo">
                 <i class="fas fa-bolt" style="color: var(--gold);"></i>
                 PIN-PON <span>SHOP</span>
-                <span id="admin-indicator" style="display:none; background:var(--accent); color:white; font-size:0.5rem; padding:2px 4px; border-radius:4px; margin-left:5px;">ADMIN</span>
+                <span id="admin-indicator" style="display:none; background:red; color:white; font-size:0.5rem; padding:2px 4px; border-radius:4px; margin-left:5px;">ADMIN</span>
             </div>
             <i class="fas fa-bars menu-btn" onclick="openMenu()"></i>
         </div>
@@ -143,10 +159,10 @@
         </div>
     </header>
 
-    <div class="banner" id="promo-banner" onclick="state.isAdmin ? editBanner() : null">
+    <div class="banner" id="promo-banner">
         <h2 id="banner-title">¡Gran Apertura!</h2>
         <p id="banner-subtitle">Envíos a todo Santiago de Cuba</p>
-        <div class="banner-edit-overlay">
+        <div class="banner-edit-overlay" onclick="editBanner()">
             <i class="fas fa-edit"></i> Editar Banner
         </div>
     </div>
@@ -155,7 +171,8 @@
         </div>
 
     <div class="grid" id="product-grid">
-        </div>
+        <div style="grid-column: 1/-1; text-align:center; padding:40px; color:#999;">Cargando productos...</div>
+    </div>
 
     <footer class="shop-footer">
         <div class="trust-badges">
@@ -175,7 +192,7 @@
         
         <div class="contact-info">
             <div class="contact-row">
-                <i class="fab fa-whatsapp"></i> +53 59207040
+                <i class="fas fa-phone-alt"></i> 59207040
             </div>
             <div class="contact-row">
                 <i class="fas fa-envelope"></i> odh190302@gmail.com
@@ -200,21 +217,25 @@
             </div>
             
             <div id="admin-panel" style="display:none;">
-                <div class="admin-controls-panel" style="background:#f0f0f0; padding:15px; border-radius:8px; margin-bottom:10px;">
+                <div class="admin-controls-panel">
                     <h4 style="margin-top:0;">🛠 Panel Administrador</h4>
                     <label style="font-size:0.8rem;">Tasa de Cambio (1 USD = X MN)</label>
-                    <input type="number" id="exchange-rate" value="300" onchange="updateSettings()" style="margin-bottom:10px;">
+                    <input type="number" id="exchange-rate" onchange="updateExchangeRate()" style="margin-bottom:10px;">
                     
+                    <label style="display:flex; align-items:center; gap:10px; margin-bottom: 10px;">
+                        <input type="checkbox" id="maintenance-toggle" style="width:auto; margin:0;" onchange="toggleMaintenance()"> 
+                        Activar Mantenimiento
+                    </label>
+
                     <button class="btn btn-success" onclick="openProductForm()"><i class="fas fa-plus"></i> Agregar Producto</button>
                     <button class="btn btn-primary" onclick="openCategoryManager()"><i class="fas fa-list"></i> Gestionar Categorías</button>
-                    <button class="btn btn-info" id="btn-toggle-maintenance" onclick="toggleMaintenance()"></button>
                 </div>
                 <button class="btn btn-danger" onclick="logoutAdmin()">Cerrar Sesión Admin</button>
             </div>
 
-            <button id="login-btn" class="btn btn-secondary" style="background: var(--secondary); color: white;" onclick="promptAdminLogin()">Soy el Administrador</button>
+            <button id="login-btn" class="btn btn-primary" onclick="promptAdminLogin()">Soy el Administrador</button>
             <div style="margin-top:20px; font-size:0.9rem; color:#777; text-align:center;">
-                <p>PIN-PON SHOP v4.1 (Corregido)</p>
+                <p>PIN-PON SHOP v2.0</p>
             </div>
         </div>
     </div>
@@ -223,36 +244,33 @@
         <div class="modal-content">
             <button class="close-modal" style="position: absolute; right: 15px; top: 15px; z-index: 10;" onclick="closeModal('product-modal')">&times;</button>
             
-            <img id="modal-img" class="img-large" src="" alt="" style="width:100%; height:250px; object-fit:contain; margin-bottom:15px;">
+            <img id="modal-img" class="img-large" src="" alt="">
             
-            <h2 id="modal-title" style="margin: 0; font-size: 1.5rem;"></h2>
+            <h2 id="modal-title" style="margin: 0; font-size: 1.3rem;"></h2>
             
-            <label class="rating-label">Clasificación:</label>
-            <div class="rating-interactive" id="modal-rating-container" style="margin-bottom: 5px;">
+            <label class="rating-label">Clasifique nuestro producto:</label>
+            <div class="rating-interactive" id="modal-rating-container">
                 <i class="far fa-star" onclick="rateProduct(1)"></i>
                 <i class="far fa-star" onclick="rateProduct(2)"></i>
                 <i class="far fa-star" onclick="rateProduct(3)"></i>
                 <i class="far fa-star" onclick="rateProduct(4)"></i>
                 <i class="far fa-star" onclick="rateProduct(5)"></i>
             </div>
-            
-            <p id="modal-desc" style="color: #666; line-height: 1.5; font-size: 0.95rem; margin-bottom: 5px;"></p>
-            
-            <div id="modal-stock-indicator" style="font-size: 0.9rem; font-weight: 600; margin-bottom: 15px;"></div>
 
-            <div style="display: flex; align-items: baseline; margin-bottom: 15px;">
-                <span style="font-size: 1.1rem; color: #666; margin-right: 5px;">Precio:</span>
-                <span style="font-size: 1.8rem; font-weight: 800; color: var(--accent);" id="modal-price"></span>
-                <span style="font-size: 1rem; color: #666; font-weight: 400; margin-left: 5px;" id="modal-mn-price"></span>
+            <p id="modal-desc" style="color: #666; line-height: 1.5; font-size: 0.95rem;"></p>
+            
+            <div style="display: flex; align-items: baseline;">
+                <span class="detail-price" id="modal-price"></span>
+                <span class="detail-mn" id="modal-mn-price"></span>
             </div>
 
             <div class="detail-actions">
-                <div class="qty-selector-large" style="display: flex; align-items: center; border: 1px solid #ccc; border-radius: 8px; height: 44px;">
-                    <button class="qty-btn-large" onclick="updateModalQty(-1)" style="width: 40px; height: 100%; background: none; border: none; font-size: 1.2rem; cursor: pointer;">-</button>
-                    <div class="qty-display-large" id="modal-qty-display" style="width: 40px; text-align: center; font-weight: bold; font-size: 1.1rem;">1</div>
-                    <button class="qty-btn-large" onclick="updateModalQty(1)" style="width: 40px; height: 100%; background: none; border: none; font-size: 1.2rem; cursor: pointer;">+</button>
+                <div class="qty-selector-large">
+                    <button class="qty-btn-large" onclick="updateModalQty(-1)">-</button>
+                    <div class="qty-display-large" id="modal-qty-display">1</div>
+                    <button class="qty-btn-large" onclick="updateModalQty(1)">+</button>
                 </div>
-                <button class="btn-add-large" id="modal-add-btn" onclick="addToCartFromModal()" style="flex-grow: 1; background: var(--secondary); color: white; border: none; height: 44px; border-radius: 8px; font-weight: bold; font-size: 1rem; cursor: pointer;">
+                <button class="btn-add-large" id="modal-add-btn" onclick="addToCartFromModal()">
                     Agregar al Carrito
                 </button>
             </div>
@@ -260,8 +278,8 @@
             <div id="admin-product-actions" style="display:none; margin-top: 15px; border-top: 1px dashed #ccc; padding-top: 15px;">
                 <p style="font-size: 0.8rem; font-weight: bold; color: var(--secondary);">OPCIONES ADMIN:</p>
                 <div style="display:flex; gap: 10px;">
-                    <button class="btn btn-info" onclick="editProductFromModal()" style="flex:1;">Editar Producto</button>
-                    <button class="btn btn-danger" onclick="deleteProductFromModal()" style="flex:1;">Eliminar</button>
+                    <button class="btn btn-info" onclick="editProductFromModal()">Editar Producto</button>
+                    <button class="btn btn-danger" onclick="deleteProductFromModal()">Eliminar</button>
                 </div>
             </div>
 
@@ -322,7 +340,7 @@
     <div class="modal" id="admin-product-modal">
         <div class="modal-content">
             <div class="modal-header">
-                <span class="modal-title-text">Editar Producto</span>
+                <span class="modal-title-text" id="product-modal-title">Agregar Producto</span>
                 <button class="close-modal" onclick="closeModal('admin-product-modal')">&times;</button>
             </div>
             <form id="product-form" onsubmit="saveProduct(event)">
@@ -348,18 +366,18 @@
                 <textarea id="p-desc" rows="3"></textarea>
 
                 <label>Foto (Subir desde Galería)</label>
-                <input type="file" id="p-image-file" accept="image/*" onchange="handleImageUpload(this)">
+                <input type="file" id="p-image-file" accept="image/*" onchange="handleImageFileChange(this)">
                 <input type="hidden" id="p-image-data">
-                <div id="p-image-preview" style="width: 100px; height: 100px; background: #eee; margin-bottom: 15px; border-radius: 8px; overflow: hidden;"></div>
+                <div id="p-image-preview" style="width: 100px; height: 100px; background: #eee; margin-bottom: 15px; border-radius: 8px; overflow: hidden; background-size: cover; background-position: center;"></div>
 
                 <div style="margin-bottom: 20px;">
-                    <label style="display:flex; align-items:center; gap:10px; margin-bottom: 5px; font-weight: normal;">
+                    <label style="display:flex; align-items:center; gap:10px; margin-bottom: 5px;">
                         <input type="checkbox" id="p-is-new" style="width:auto; margin:0;"> 
                         Marcar como NUEVO (Etiqueta visible)
                     </label>
-                    <label style="display:flex; align-items:center; gap:10px; font-weight: normal;">
+                    <label style="display:flex; align-items:center; gap:10px;">
                         <input type="checkbox" id="p-stock" style="width:auto; margin:0;" checked> 
-                        Producto en Existencia (Stock)
+                        Producto en Existencia
                     </label>
                 </div>
 
@@ -383,18 +401,34 @@
     </div>
 
     <script>
-        // --- CONFIGURACIÓN ---
-        const WHATSAPP_NUMBER = "5359207040";
-        const ADMIN_PASS = "oscardh190302";
+        // --- 2. CONFIGURACIÓN LOCAL ---
+        const WHATSAPP_NUMBER = "5359207040"; // Tu número de WhatsApp
+        const ADMIN_PASS = "oscardh190302"; // Tu contraseña de administrador
         
-        // --- ESTADO INICIAL ---
+        // --- 3. FIREBASE CONFIG & INIT ---
+        const firebaseConfig = {
+            apiKey: "AIzaSyA04fdbHRhwgJVQrEtDJoAm7adm99h6a_w",
+            authDomain: "pinponshop-2f5c8.firebaseapp.com",
+            databaseURL: "https://pinponshop-2f5c8-default-rtdb.firebaseio.com",
+            projectId: "pinponshop-2f5c8",
+            storageBucket: "pinponshop-2f5c8.firebasestorage.app",
+            messagingSenderId: "433977596942",
+            appId: "1:433977596942:web:9f4fbbd81cf2e640a4f05f"
+        };
+        
+        // Inicializar Firebase y los servicios de Firestore y Storage
+        const app = firebase.initializeApp(firebaseConfig);
+        const db = app.firestore();
+        const storage = app.storage();
+
+        // --- ESTADO GLOBAL (SIN DATOS DEMO) ---
         let state = {
             isAdmin: false,
             maintenance: false,
             exchangeRate: 300,
             bannerTitle: "Grandes Ofertas de Apertura",
             bannerSub: "Compra con confianza en Santiago de Cuba",
-            categories: ["Electrodomésticos", "Vehículos", "Baterías", "Neumáticos", "Partes y piezas"],
+            categories: ["Electrodomésticos", "Vehículos", "Baterías"],
             products: [], 
             cart: [],
             ratings: {} 
@@ -402,54 +436,127 @@
 
         let tempModalQty = 1;
         let activeModalProductId = null;
-        let activeCategoryFilter = 'all'; // Nuevo filtro de categoría
+        let imageFileToUpload = null;
 
-        // --- INICIO ---
-        function init() {
-            const savedData = localStorage.getItem('pinpon_data_v3');
-            if (savedData) {
-                const parsed = JSON.parse(savedData);
-                state = { ...state, ...parsed };
-                if(!state.ratings) state.ratings = {};
-            } else {
-                seedDemoData();
+        // ===========================================
+        // === 4. FIREBASE DATA HANDLERS (CRUD) ======
+        // ===========================================
+
+        // Carga la configuración inicial (tasa, banner, mantenimiento, categorías)
+        async function fetchSettings() {
+            try {
+                const settingsRef = db.collection('settings').doc('shop_config');
+                const doc = await settingsRef.get();
+
+                if (doc.exists) {
+                    const data = doc.data();
+                    state.exchangeRate = data.exchangeRate || 300;
+                    state.bannerTitle = data.bannerTitle || "¡Gran Apertura!";
+                    state.bannerSub = data.bannerSub || "Envíos a todo Santiago de Cuba";
+                    state.maintenance = data.maintenance || false;
+                    state.categories = data.categories || ["Electrodomésticos"];
+                } else {
+                    // Si es la primera vez, crea el documento de configuración
+                    await settingsRef.set({
+                        exchangeRate: state.exchangeRate,
+                        bannerTitle: state.bannerTitle,
+                        bannerSub: state.bannerSub,
+                        maintenance: state.maintenance,
+                        categories: state.categories
+                    });
+                }
+            } catch (error) {
+                console.error("Error fetching settings:", error);
             }
-            renderAll();
         }
 
-        function seedDemoData() {
-            state.products = [
-                { id: 1, name: "Batería de Litio 72V 40Ah", category: "Baterías", price: 1200, oldPrice: 1350, stock: true, isNew: true, image: "https://via.placeholder.com/400?text=Bateria+72V", desc: "Batería de alta potencia para motos eléctricas. Garantía de 6 meses." },
-                { id: 2, name: "Neumático Deportivo R13", category: "Neumáticos", price: 55, oldPrice: 0, stock: true, isNew: false, image: "https://via.placeholder.com/400?text=Neumatico", desc: "Caucho de alta durabilidad y agarre." },
-                { id: 3, name: "Smartwatch Deportivo", category: "Electrodomésticos", price: 35, oldPrice: 45, stock: false, isNew: true, image: "https://via.placeholder.com/400?text=Reloj", desc: "Mide ritmo cardiaco, pasos y notificaciones." },
-                { id: 4, name: "Amortiguador Trasero", category: "Partes y piezas", price: 70, oldPrice: 0, stock: true, isNew: false, image: "https://via.placeholder.com/400?text=Amortiguador", desc: "Amortiguador de gas universal." }
-            ];
-            saveData();
+        // Guarda cualquier campo de la configuración
+        async function updateSettings(fields) {
+            try {
+                await db.collection('settings').doc('shop_config').update(fields);
+                await fetchSettings(); // Re-fetch all to sync state
+            } catch (error) {
+                console.error("Error updating settings:", error);
+                alert("Error al guardar la configuración.");
+            }
+        }
+        
+        // Carga los productos
+        async function fetchProducts() {
+            state.products = [];
+            try {
+                const snapshot = await db.collection('products').get();
+                snapshot.forEach(doc => {
+                    // Mapeamos el ID de Firestore al objeto de producto
+                    state.products.push({ id: doc.id, ...doc.data() });
+                });
+            } catch (error) {
+                console.error("Error fetching products:", error);
+            }
         }
 
-        function saveData() {
-            localStorage.setItem('pinpon_data_v3', JSON.stringify(state));
-        }
-
-        // --- RENDERIZADO ---
-        function renderAll() {
-            renderBanner();
-            renderCategories();
-            renderProducts(activeCategoryFilter); 
-            updateCartIcon();
-            checkMaintenance();
+        // Guarda o actualiza un producto (incluye carga de imagen)
+        async function saveProduct(e) {
+            e.preventDefault();
+            const id = document.getElementById('p-id').value;
             
-            // UI Admin changes
-            document.getElementById('admin-indicator').style.display = state.isAdmin ? 'inline-block' : 'none';
-            document.getElementById('login-btn').style.display = state.isAdmin ? 'none' : 'block';
-            document.getElementById('admin-panel').style.display = state.isAdmin ? 'block' : 'none';
-            document.getElementById('exchange-rate').value = state.exchangeRate;
+            const productData = {
+                name: document.getElementById('p-name').value,
+                category: document.getElementById('p-category').value,
+                price: parseFloat(document.getElementById('p-price').value),
+                oldPrice: document.getElementById('p-old-price').value ? parseFloat(document.getElementById('p-old-price').value) : 0,
+                desc: document.getElementById('p-desc').value,
+                stock: document.getElementById('p-stock').checked,
+                isNew: document.getElementById('p-is-new').checked,
+                image: document.getElementById('p-image-data').value || "https://via.placeholder.com/400?text=SIN+IMAGEN",
+                // Conservar la imagen existente si no se sube una nueva
+            };
 
-            const btnMaint = document.getElementById('btn-toggle-maintenance');
-            if(btnMaint) btnMaint.innerText = state.maintenance ? "Desactivar Mantenimiento" : "Activar Mantenimiento";
+            try {
+                let imageUrl = productData.image;
+
+                if (imageFileToUpload) {
+                    const storageRef = storage.ref();
+                    const fileName = `${Date.now()}-${imageFileToUpload.name}`;
+                    const imageRef = storageRef.child(`product_images/${fileName}`);
+                    
+                    document.querySelector('.btn-primary').innerText = "Subiendo imagen...";
+                    document.querySelector('.btn-primary').disabled = true;
+
+                    const snapshot = await imageRef.put(imageFileToUpload);
+                    imageUrl = await snapshot.ref.getDownloadURL();
+                    productData.image = imageUrl;
+                }
+
+                if (id) {
+                    // Editar Producto
+                    await db.collection('products').doc(id).update(productData);
+                    alert("Producto actualizado exitosamente.");
+                } else {
+                    // Nuevo Producto
+                    await db.collection('products').add(productData);
+                    alert("Producto agregado exitosamente.");
+                }
+                
+                // Limpiar estado temporal y refrescar la tienda
+                imageFileToUpload = null;
+                await fetchProducts();
+                closeModal('admin-product-modal');
+                renderAll();
+
+            } catch (error) {
+                console.error("Error saving product:", error);
+                alert("Error al guardar el producto. Revisa la consola.");
+            } finally {
+                document.querySelector('.btn-primary').innerText = "Guardar Cambios";
+                document.querySelector('.btn-primary').disabled = false;
+            }
         }
 
-        // FUNCIÓN CORREGIDA
+        // ===========================================
+        // === 5. RENDERING (Fixed Order) ============
+        // ===========================================
+
         function renderBanner() {
             document.getElementById('banner-title').innerText = state.bannerTitle;
             document.getElementById('banner-subtitle').innerText = state.bannerSub;
@@ -458,33 +565,24 @@
 
         function renderCategories() {
             const container = document.getElementById('category-list');
-            let html = `<div class="cat-pill ${activeCategoryFilter === 'all' ? 'active' : ''}" onclick="selectCategory('all', this)">Todos</div>`;
+            let html = `<div class="cat-pill active" onclick="selectCategory('all', this)">Todos</div>`;
             state.categories.forEach(cat => {
-                html += `<div class="cat-pill ${activeCategoryFilter === cat ? 'active' : ''}" onclick="selectCategory('${cat}', this)">${cat}</div>`;
+                html += `<div class="cat-pill" onclick="selectCategory('${cat}', this)">${cat}</div>`;
             });
             container.innerHTML = html;
         }
 
-        function selectCategory(cat, el) {
-            activeCategoryFilter = cat;
-            document.querySelectorAll('.cat-pill').forEach(c => c.classList.remove('active'));
-            el.classList.add('active');
-            renderProducts(cat);
-        }
-
-        function searchProducts() {
-            const term = document.getElementById('search-bar').value.toLowerCase();
-            renderProducts(activeCategoryFilter, term);
-        }
-
-        function renderProducts(filterCategory, searchTerm = '') {
+        function renderProducts(filterCategory = 'all', searchTerm = '') {
             const grid = document.getElementById('product-grid');
             grid.innerHTML = '';
 
             let filtered = state.products;
 
-            if (filterCategory !== 'all') {
-               filtered = filtered.filter(p => p.category === filterCategory);
+            const activePill = document.querySelector('.cat-pill.active');
+            const activeCat = activePill && activePill.innerText !== 'Todos' ? activePill.innerText : filterCategory;
+            
+            if (activeCat !== 'all') {
+                filtered = filtered.filter(p => p.category === activeCat);
             }
 
             if (searchTerm) {
@@ -494,7 +592,7 @@
                 );
             }
 
-            if (!filtered || filtered.length === 0) {
+            if (filtered.length === 0) {
                 grid.innerHTML = `<div style="grid-column: 1/-1; text-align:center; padding:40px; color:#999;">No se encontraron productos en esta categoría.</div>`;
                 return;
             }
@@ -502,7 +600,9 @@
             filtered.forEach(p => {
                 const isSale = p.oldPrice && p.oldPrice > p.price;
                 const percent = isSale ? Math.round(((p.oldPrice - p.price) / p.oldPrice) * 100) : 0;
-                
+                const myRating = state.ratings[p.id] || 0;
+                const starColor = myRating > 0 ? 'var(--gold)' : '#ddd';
+
                 const card = document.createElement('div');
                 card.className = 'product-card';
                 card.onclick = (e) => {
@@ -511,60 +611,108 @@
                     }
                 };
                 
-                const stockOverlay = !p.stock ? `<div class="out-of-stock-overlay"><i class="fas fa-exclamation-circle fa-2x"></i> AGOTADO</div>` : '';
-                
-                let badgeHTML = '';
-                if (p.isNew) {
-                    badgeHTML = `<span class="p-badge new">NUEVO</span>`;
-                } else if (isSale) {
-                    badgeHTML = `<span class="p-badge sale">-${percent}%</span>`;
-                }
-                
-                const currentQty = state.cart.find(i => i.id === p.id)?.qty || 0;
-                const cardQty = parseInt(document.getElementById(`card-qty-${p.id}`)?.innerText || 1); // Obtiene la cantidad en la tarjeta o 1
-
-                // HTML de controles adaptado para la funcionalidad de stock
-                const controlsHTML = p.stock ? `
-                    <div class="card-controls">
-                        <div class="qty-mini" onclick="event.stopPropagation()">
-                            <button class="qty-mini-btn" onclick="updateCardQty(${p.id}, -1)">-</button>
-                            <span class="qty-mini-val" id="card-qty-${p.id}">${cardQty}</span>
-                            <button class="qty-mini-btn" onclick="updateCardQty(${p.id}, 1)">+</button>
-                        </div>
-                        <div class="add-btn-mini" onclick="addFromCard(${p.id})" ${!p.stock ? 'disabled' : ''}>
-                            <i class="fas fa-cart-plus"></i>
-                        </div>
-                    </div>
-                ` : `<div style="font-size:0.8rem; color:red; font-weight:600; text-align:right;">Agotado</div>`;
+                const stockOverlay = !p.stock ? `<div class="out-of-stock-overlay">AGOTADO</div>` : '';
+                const saleBadge = isSale ? `<div style="position:absolute; top:5px; left:5px; background:var(--accent); color:white; font-size:0.7rem; font-weight:bold; padding:2px 6px; border-radius:4px;">-${percent}%</div>` : '';
+                const newBadge = p.isNew ? `<span class="p-sales" style="background: var(--secondary); color: white;">Nuevo</span>` : '<span class="p-sales">Popular</span>';
 
                 card.innerHTML = `
                     ${stockOverlay}
                     <div class="img-container">
                         <img src="${p.image}" alt="${p.name}" loading="lazy">
-                        ${badgeHTML}
+                        ${saleBadge}
                     </div>
                     <div class="p-details">
                         <h3 class="p-title">${p.name}</h3>
                         
+                        <div class="p-meta">
+                            <div style="color:${starColor}; font-size:0.7rem;">
+                                <i class="fas fa-star"></i> ${myRating > 0 ? myRating + '.0' : '4.8'}
+                            </div>
+                            ${newBadge}
+                        </div>
+
                         <div class="p-price-row">
                             <span class="p-currency">USD</span>
                             <span class="p-price">${p.price.toFixed(2)}</span>
                             ${isSale ? `<span class="p-old-price">$${p.oldPrice.toFixed(2)}</span>` : ''}
                         </div>
 
-                        ${controlsHTML}
-
+                        <div class="card-controls">
+                            <div class="qty-mini" onclick="event.stopPropagation()">
+                                <button class="qty-mini-btn" onclick="updateCardQty('${p.id}', -1)">-</button>
+                                <span class="qty-mini-val" id="card-qty-${p.id}">1</span>
+                                <button class="qty-mini-btn" onclick="updateCardQty('${p.id}', 1)">+</button>
+                            </div>
+                            <div class="add-btn-mini" onclick="addFromCard('${p.id}')">
+                                <i class="fas fa-cart-plus"></i>
+                            </div>
+                        </div>
                     </div>
                 `;
                 grid.appendChild(card);
             });
         }
+        
+        function updateCartIcon() {
+            const total = state.cart.reduce((sum, item) => sum + item.qty, 0);
+            document.getElementById('cart-count').innerText = total;
+        }
+
+        function checkMaintenance() {
+            const overlay = document.getElementById('maintenance-overlay');
+            if (state.maintenance && !state.isAdmin) {
+                overlay.style.display = 'flex';
+                document.body.style.overflow = 'hidden';
+            } else {
+                overlay.style.display = 'none';
+                document.body.style.overflow = 'auto';
+            }
+        }
+
+        function renderAll() {
+            renderBanner();
+            renderCategories();
+            renderProducts();
+            updateCartIcon();
+            checkMaintenance();
+            
+            // UI Admin changes
+            document.getElementById('admin-indicator').style.display = state.isAdmin ? 'inline-block' : 'none';
+            document.getElementById('login-btn').style.display = state.isAdmin ? 'none' : 'block';
+            document.getElementById('admin-panel').style.display = state.isAdmin ? 'block' : 'none';
+            document.getElementById('exchange-rate').value = state.exchangeRate;
+            document.getElementById('maintenance-toggle').checked = state.maintenance;
+        }
+
+        // ===========================================
+        // === 6. APP START & LOCAL STORAGE LOGIC ====
+        // ===========================================
+
+        function saveLocalData(key, data) {
+            localStorage.setItem(`pinpon_${key}`, JSON.stringify(data));
+        }
+
+        async function init() {
+            // Cargar datos locales de usuario (carrito, ratings, admin state)
+            state.isAdmin = localStorage.getItem('pinpon_admin') === 'true';
+            const savedCart = localStorage.getItem('pinpon_cart');
+            if (savedCart) state.cart = JSON.parse(savedCart);
+            const savedRatings = localStorage.getItem('pinpon_ratings');
+            if (savedRatings) state.ratings = JSON.parse(savedRatings);
+
+            // Cargar datos de la tienda de Firebase
+            await fetchSettings();
+            await fetchProducts();
+            
+            // Renderizar la interfaz
+            renderAll();
+        }
+
+        // El resto de las funciones de la tienda deben ir aquí...
 
         // --- LÓGICA DE PRODUCTO Y MODAL ---
         function updateCardQty(id, change) {
             const el = document.getElementById(`card-qty-${id}`);
-            if (!el) return;
-
             let val = parseInt(el.innerText);
             val += change;
             if (val < 1) val = 1;
@@ -572,12 +720,8 @@
         }
 
         function addFromCard(id) {
-            const el = document.getElementById(`card-qty-${id}`);
-            const qty = parseInt(el ? el.innerText : 1);
+            const qty = parseInt(document.getElementById(`card-qty-${id}`).innerText);
             addToCart(id, qty);
-
-            // Resetea a 1 después de agregar (mejor UX)
-            if(el) el.innerText = 1;
         }
 
         function openProductModal(id) {
@@ -591,23 +735,19 @@
             document.getElementById('modal-desc').innerText = p.desc || "Sin descripción detallada.";
             document.getElementById('modal-price').innerText = `$${p.price.toFixed(2)}`;
             
-            const mnVal = (p.price * state.exchangeRate).toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+            const mnVal = (p.price * state.exchangeRate).toFixed(0);
             document.getElementById('modal-mn-price').innerText = `(${mnVal} CUP)`;
 
             document.getElementById('modal-qty-display').innerText = "1";
             
             renderModalStars(state.ratings[id] || 0);
 
-            const stockIndicator = document.getElementById('modal-stock-indicator');
             const btn = document.getElementById('modal-add-btn');
-
             if (p.stock) {
-                stockIndicator.innerHTML = '<span style="color:#00a65a;"><i class="fas fa-check-circle"></i> En Existencia</span>';
                 btn.disabled = false;
                 btn.style.background = "var(--secondary)";
-                btn.innerHTML = `Agregar al Carrito <i class="fas fa-cart-plus"></i>`;
+                btn.innerHTML = `Agregar <i class="fas fa-cart-plus"></i>`;
             } else {
-                stockIndicator.innerHTML = '<span style="color:#ff4444;"><i class="fas fa-times-circle"></i> Agotado</span>';
                 btn.disabled = true;
                 btn.style.background = "#ccc";
                 btn.innerText = "Agotado";
@@ -616,7 +756,7 @@
             // CONTROLES ADMIN VISIBLES
             const adminActions = document.getElementById('admin-product-actions');
             if (state.isAdmin) {
-                adminActions.style.display = 'flex';
+                adminActions.style.display = 'block';
             } else {
                 adminActions.style.display = 'none';
             }
@@ -655,9 +795,9 @@
         function rateProduct(stars) {
             if (activeModalProductId) {
                 state.ratings[activeModalProductId] = stars;
-                saveData();
+                saveLocalData('ratings', state.ratings);
                 renderModalStars(stars);
-                renderProducts(activeCategoryFilter); 
+                renderProducts(); 
             }
         }
 
@@ -672,16 +812,11 @@
             } else {
                 state.cart.push({ id: id, qty: qty });
             }
-            saveData();
+            saveLocalData('cart', state.cart);
             updateCartIcon();
             const badge = document.getElementById('cart-count');
             badge.style.transform = "scale(1.5)";
             setTimeout(() => badge.style.transform = "scale(1)", 200);
-        }
-
-        function updateCartIcon() {
-            const total = state.cart.reduce((sum, item) => sum + item.qty, 0);
-            document.getElementById('cart-count').innerText = total;
         }
 
         function openCart() {
@@ -701,35 +836,31 @@
                 if (!p) return;
                 const subtotal = p.price * item.qty;
                 totalUSD += subtotal;
-                const mnSubtotal = (subtotal * state.exchangeRate).toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ".");
-
 
                 container.innerHTML += `
-                    <div style="display:flex; gap:10px; margin-bottom:15px; border-bottom:1px solid #f9f9f9; padding-bottom:10px; align-items:center;">
+                    <div style="display:flex; gap:10px; margin-bottom:15px; border-bottom:1px solid #f9f9f9; padding-bottom:10px;">
                         <img src="${p.image}" style="width:50px; height:50px; object-fit:cover; border-radius:4px;">
                         <div style="flex:1;">
                             <div style="font-weight:600; font-size:0.9rem;">${p.name}</div>
-                            <div style="font-size:0.8rem; color:#666;">$${p.price.toFixed(2)} x ${item.qty}</div>
+                            <div style="font-size:0.8rem; color:#666;">$${p.price} x ${item.qty}</div>
                         </div>
                         <div style="display:flex; flex-direction:column; align-items:flex-end;">
-                            <div style="font-weight:bold; color:var(--accent);">$${subtotal.toFixed(2)}</div>
-                            <div style="font-size:0.75rem; color:#999;">${mnSubtotal} MN</div>
+                            <div style="font-weight:bold;">$${subtotal.toFixed(2)}</div>
+                            <button onclick="removeFromCart(${idx})" style="color:red; background:none; border:none; font-size:0.8rem; margin-top:5px;">Eliminar</button>
                         </div>
-                        <button onclick="removeFromCart(${idx})" style="color:red; background:none; border:none; font-size:1.1rem; cursor:pointer;"><i class="fas fa-trash"></i></button>
                     </div>
                 `;
             });
 
-            const totalMN = (totalUSD * state.exchangeRate).toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ".");
-            document.getElementById('cart-total').innerHTML = `$${totalUSD.toFixed(2)} USD <span style="font-size: 0.9rem; color: #666;">(${totalMN} CUP)</span>`;
+            const totalMN = (totalUSD * state.exchangeRate).toFixed(0);
+            document.getElementById('cart-total').innerText = `$${totalUSD.toFixed(2)} USD (${totalMN} MN)`;
             openModal('cart-modal');
         }
 
         function removeFromCart(idx) {
             state.cart.splice(idx, 1);
-            saveData();
+            saveLocalData('cart', state.cart);
             openCart(); 
-            renderProducts(activeCategoryFilter); // Refrescar vista principal
         }
 
         // --- CHECKOUT & WHATSAPP ---
@@ -742,8 +873,8 @@
                 const p = state.products.find(x => x.id === i.id);
                 if(p) t += p.price * i.qty;
             });
-            const mn = (t * state.exchangeRate).toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ".");
-            document.getElementById('checkout-total-display').innerText = `$${t.toFixed(2)} USD / ${mn} CUP`;
+            const mn = (t * state.exchangeRate).toFixed(0);
+            document.getElementById('checkout-total-display').innerText = `$${t.toFixed(2)} USD / ${mn} MN`;
         }
 
         function processOrder(e) {
@@ -762,7 +893,7 @@
             msg += `--------------------------------\n`;
             msg += `👤 *Cliente:* ${formData.name}\n`;
             msg += `🆔 *CI:* ${formData.ci}\n`;
-            msg += `📞 *Contacto:* +${formData.phone}\n`;
+            msg += `📞 *Contacto:* ${formData.phone}\n`;
             msg += `📍 *Dirección:* ${formData.addr}\n`;
             msg += `📅 *Entrega:* ${formData.date}\n`;
             msg += `💳 *Pago:* ${formData.pay}\n`;
@@ -775,11 +906,11 @@
                 if (p) {
                     const sub = p.price * item.qty;
                     total += sub;
-                    msg += `▫️ ${p.name} (x${item.qty}) - $${sub.toFixed(2)} USD\n`;
+                    msg += `▫️ ${p.name} (x${item.qty}) - $${sub.toFixed(2)}\n`;
                 }
             });
 
-            const totalMN = (total * state.exchangeRate).toFixed(0).replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+            const totalMN = (total * state.exchangeRate).toFixed(0);
             msg += `\n💰 *TOTAL FINAL:* $${total.toFixed(2)} USD\n`;
             msg += `💵 *En CUP:* ${totalMN} MN\n`;
             msg += `--------------------------------\n`;
@@ -788,12 +919,10 @@
             const url = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(msg)}`;
             window.open(url, '_blank');
 
+            // Limpiar carrito y recargar
             state.cart = [];
-            saveData();
-            // location.reload(); // Evitamos recargar para mantener la fluidez
-            closeModal('checkout-modal');
-            alert("Pedido iniciado. Revisa tu WhatsApp para finalizar.");
-            renderAll();
+            saveLocalData('cart', state.cart);
+            location.reload(); 
         }
 
         // --- ADMIN FUNCTIONS ---
@@ -801,56 +930,40 @@
             const pass = prompt("Contraseña de Administrador:");
             if (pass === ADMIN_PASS) {
                 state.isAdmin = true;
-                state.maintenance = false; // Desactiva mantenimiento al loguearse
-                saveData();
-                closeModal('menu-modal');
+                localStorage.setItem('pinpon_admin', 'true');
                 renderAll();
-            } else if (pass !== null) {
+                closeModal('menu-modal');
+                alert("Sesión de administrador iniciada.");
+            } else {
                 alert("Contraseña incorrecta.");
             }
         }
 
         function logoutAdmin() {
             state.isAdmin = false;
-            state.maintenance = false;
-            saveData();
-            closeModal('menu-modal');
+            localStorage.setItem('pinpon_admin', 'false');
             renderAll();
         }
 
-        function checkMaintenance() {
-            const isMaintenance = state.maintenance && !state.isAdmin;
-            const overlay = document.getElementById('maintenance-overlay');
-            if (isMaintenance) {
-                overlay.classList.add('open');
-                document.body.style.overflow = 'hidden';
-            } else {
-                overlay.classList.remove('open');
-                document.body.style.overflow = 'auto';
-            }
-        }
-        
-        function toggleMaintenance() {
-            state.maintenance = !state.maintenance;
-            saveData(); 
-            renderAll();
-        }
-
-
-        function editBanner() {
+        async function editBanner() {
             if(!state.isAdmin) return;
             const t = prompt("Nuevo Título:", state.bannerTitle);
             const s = prompt("Nuevo Subtítulo:", state.bannerSub);
-            if(t !== null) state.bannerTitle = t;
-            if(s !== null) state.bannerSub = s;
-            saveData();
-            renderBanner();
+            if(t && s) {
+                await updateSettings({ bannerTitle: t, bannerSub: s });
+            }
         }
 
-        function updateSettings() {
-            state.exchangeRate = parseFloat(document.getElementById('exchange-rate').value);
-            saveData();
-            renderAll();
+        async function updateExchangeRate() {
+            const rate = parseFloat(document.getElementById('exchange-rate').value);
+            if(rate && rate > 0) {
+                await updateSettings({ exchangeRate: rate });
+            }
+        }
+
+        async function toggleMaintenance() {
+            const isChecked = document.getElementById('maintenance-toggle').checked;
+            await updateSettings({ maintenance: isChecked });
         }
 
         // GESTIÓN PRODUCTOS
@@ -858,14 +971,16 @@
             document.getElementById('product-form').reset();
             document.getElementById('p-id').value = '';
             document.getElementById('p-image-data').value = '';
-            document.getElementById('p-image-preview').innerHTML = '';
+            document.getElementById('p-image-preview').style.backgroundImage = 'none';
+            document.getElementById('product-modal-title').innerText = 'Agregar Producto';
+            imageFileToUpload = null;
             
             const sel = document.getElementById('p-category');
             sel.innerHTML = '';
             state.categories.forEach(c => sel.innerHTML += `<option value="${c}">${c}</option>`);
 
-            closeModal('menu-modal');
             openModal('admin-product-modal');
+            closeModal('menu-modal');
         }
 
         function editProductFromModal() {
@@ -874,6 +989,7 @@
             const p = state.products.find(x => x.id === activeModalProductId);
             
             openProductForm();
+            document.getElementById('product-modal-title').innerText = 'Editar Producto';
             document.getElementById('p-id').value = p.id;
             document.getElementById('p-name').value = p.name;
             document.getElementById('p-category').value = p.category;
@@ -883,92 +999,96 @@
             document.getElementById('p-stock').checked = p.stock;
             document.getElementById('p-is-new').checked = p.isNew || false;
             document.getElementById('p-image-data').value = p.image;
-            document.getElementById('p-image-preview').innerHTML = `<img src="${p.image}" style="width:100%; height:100%; object-fit:cover;">`;
+            document.getElementById('p-image-preview').style.backgroundImage = `url('${p.image}')`;
         }
 
-        function deleteProductFromModal() {
+        async function deleteProductFromModal() {
             if (!activeModalProductId) return;
-            if(confirm("¿Estás seguro de eliminar este producto permanentemente?")) {
-                state.products = state.products.filter(x => x.id !== activeModalProductId);
-                saveData();
-                closeModal('product-modal');
-                renderProducts(activeCategoryFilter);
+            if(confirm("¿Estás seguro de eliminar este producto permanentemente? Esta acción no se puede deshacer.")) {
+                try {
+                    await db.collection('products').doc(activeModalProductId).delete();
+                    await fetchProducts(); // Refrescar productos
+                    alert("Producto eliminado exitosamente.");
+                    closeModal('product-modal');
+                    renderAll();
+                } catch (error) {
+                    console.error("Error deleting product:", error);
+                    alert("Error al eliminar el producto.");
+                }
             }
         }
 
-        function handleImageUpload(input) {
+        function handleImageFileChange(input) {
             if (input.files && input.files[0]) {
+                const file = input.files[0];
+                imageFileToUpload = file; // Guardar el archivo para subir a Storage
+                
                 const reader = new FileReader();
                 reader.onload = function(e) {
-                    document.getElementById('p-image-data').value = e.target.result;
-                    document.getElementById('p-image-preview').innerHTML = `<img src="${e.target.result}" style="width:100%; height:100%; object-fit:cover;">`;
+                    // Mostrar preview temporal usando DataURL
+                    document.getElementById('p-image-preview').style.backgroundImage = `url('${e.target.result}')`;
                 }
-                reader.readAsDataURL(input.files[0]);
-            }
-        }
-
-        function saveProduct(e) {
-            e.preventDefault();
-            const id = document.getElementById('p-id').value;
-            const newP = {
-                id: id ? parseInt(id) : Date.now(),
-                name: document.getElementById('p-name').value,
-                category: document.getElementById('p-category').value,
-                price: parseFloat(document.getElementById('p-price').value),
-                oldPrice: document.getElementById('p-old-price').value ? parseFloat(document.getElementById('p-old-price').value) : 0,
-                desc: document.getElementById('p-desc').value,
-                stock: document.getElementById('p-stock').checked,
-                isNew: document.getElementById('p-is-new').checked,
-                image: document.getElementById('p-image-data').value || "https://via.placeholder.com/400"
-            };
-
-            if (id) {
-                const idx = state.products.findIndex(x => x.id == id);
-                state.products[idx] = newP;
+                reader.readAsDataURL(file);
             } else {
-                state.products.push(newP);
+                imageFileToUpload = null;
+                // Si borra el archivo, mantiene la imagen existente (que está en p-image-data)
             }
-            saveData();
-            closeModal('admin-product-modal');
-            renderProducts(activeCategoryFilter);
         }
 
         // GESTIÓN CATEGORÍAS
         function openCategoryManager() {
+            closeModal('menu-modal');
+            renderCategoryManagerList();
+            openModal('category-manager-modal');
+        }
+
+        function renderCategoryManagerList() {
             const list = document.getElementById('category-list-admin');
             list.innerHTML = '';
             state.categories.forEach((c, i) => {
                 list.innerHTML += `
                     <div style="display:flex; justify-content:space-between; padding:10px; border-bottom:1px solid #eee; align-items:center;">
                         <span style="font-weight:500;">${c}</span>
-                        <button onclick="deleteCategory(${i})" class="btn-danger" style="width:auto; padding:5px 10px; margin:0; font-size:0.8rem;">Eliminar</button>
+                        <button onclick="deleteCategory('${c}')" style="color:white; background:#ff4444; border:none; padding:5px 10px; border-radius:4px; cursor:pointer;">Eliminar</button>
                     </div>`;
             });
-            closeModal('menu-modal');
-            openModal('category-manager-modal');
         }
 
-        function addCategory() {
+        async function addCategory() {
             const val = document.getElementById('new-category-input').value.trim();
             if(val && !state.categories.includes(val)) {
-                state.categories.push(val);
-                saveData();
+                const newCategories = [...state.categories, val];
+                await updateSettings({ categories: newCategories });
                 document.getElementById('new-category-input').value = '';
-                openCategoryManager();
+                renderCategoryManagerList();
                 renderCategories();
             } else if (state.categories.includes(val)) {
                 alert("Esa categoría ya existe.");
             }
         }
 
-        function deleteCategory(idx) {
-            if(confirm(`¿Eliminar la categoría "${state.categories[idx]}"? Esto no eliminará los productos asociados.`)) {
-                state.categories.splice(idx, 1);
-                saveData();
-                openCategoryManager();
+        async function deleteCategory(categoryName) {
+            if(confirm(`¿Estás seguro de eliminar la categoría "${categoryName}"? Los productos en esta categoría no serán eliminados, pero quedarán sin categoría visible.`)) {
+                const newCategories = state.categories.filter(c => c !== categoryName);
+                await updateSettings({ categories: newCategories });
+                renderCategoryManagerList();
                 renderCategories();
             }
         }
+
+        function selectCategory(cat, el) {
+            document.querySelectorAll('.cat-pill').forEach(c => c.classList.remove('active'));
+            el.classList.add('active');
+            renderProducts(cat);
+        }
+        
+        function searchProducts() {
+            const term = document.getElementById('search-bar').value.toLowerCase();
+            const activePill = document.querySelector('.cat-pill.active');
+            const activeCat = activePill && activePill.innerText !== 'Todos' ? activePill.innerText : 'all';
+            renderProducts(activeCat, term);
+        }
+
 
         // HELPER MODALS
         function openMenu() { openModal('menu-modal'); }
@@ -976,8 +1096,7 @@
         function closeModal(id) { document.getElementById(id).classList.remove('open'); }
 
         // Start
-        init();
-
+        window.onload = init; // Inicializar cuando la página termine de cargar
     </script>
 </body>
 </html>
