@@ -6,21 +6,21 @@
     <title>PIN-PON SHOP</title>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     
-    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-firestore-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.0.0/firebase-storage-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
     
     <style>
         :root {
-            --primary: #000000; /* Negro puro estilo Temu/Shein */
-            --secondary: #fb7701; /* Naranja Temu para acciones principales */
-            --accent: #E60023; /* Rojo para ofertas/precios */
+            --primary: #000000;
+            --secondary: #fb7701;
+            --accent: #E60023;
             --bg: #f7f7f7;
             --white: #ffffff;
             --text: #333333;
             --radius: 8px;
             --shadow: 0 2px 8px rgba(0,0,0,0.06);
             --gold: #ffc107;
+            --success: #00a65a; /* Color verde para verificaciones */
         }
 
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; outline: none; }
@@ -104,21 +104,6 @@
         .modal-title-text { font-weight: 700; font-size: 1.2rem; }
         .close-modal { font-size: 1.5rem; background: none; border: none; padding: 5px; cursor: pointer; color: #666; }
 
-        /* --- PRODUCT DETAIL SPECIFIC --- */
-        #product-modal .img-large { width: 100%; height: 300px; object-fit: contain; margin-bottom: 15px; background: #fff; }
-        .detail-price { font-size: 1.8rem; font-weight: 800; color: var(--accent); margin: 10px 0; }
-        .detail-mn { font-size: 1rem; color: #666; font-weight: 400; margin-left: 5px; }
-        .rating-interactive { display: flex; gap: 5px; margin: 10px 0; cursor: pointer; }
-        .rating-interactive i { font-size: 1.4rem; color: #ddd; transition: color 0.2s; }
-        .rating-interactive i.active { color: var(--gold); }
-        .rating-label { font-size: 0.9rem; color: #555; font-weight: 600; margin-bottom: 5px; display: block; }
-        
-        .detail-actions { display: flex; gap: 15px; margin-top: 20px; align-items: center; border-top: 1px solid #eee; padding-top: 15px; }
-        .qty-selector-large { display: flex; align-items: center; border: 1px solid #ccc; border-radius: 8px; height: 44px; }
-        .qty-btn-large { width: 40px; height: 100%; background: none; border: none; font-size: 1.2rem; cursor: pointer; display: flex; align-items: center; justify-content: center; }
-        .qty-display-large { width: 40px; text-align: center; font-weight: bold; font-size: 1.1rem; }
-        .btn-add-large { flex-grow: 1; background: var(--secondary); color: white; border: none; height: 44px; border-radius: 8px; font-weight: bold; font-size: 1rem; cursor: pointer; }
-        
         /* --- FORMS --- */
         input, select, textarea { width: 100%; padding: 14px; margin-bottom: 15px; border: 1px solid #ddd; border-radius: 8px; font-size: 1rem; background: #f9f9f9; -webkit-appearance: none; }
         .btn { width: 100%; padding: 14px; border: none; border-radius: 8px; font-size: 1rem; font-weight: bold; cursor: pointer; text-align: center; margin-bottom: 10px; }
@@ -131,6 +116,49 @@
         #maintenance-overlay { position: fixed; top:0; left:0; width:100%; height:100%; background: #fff; z-index: 9999; display: none; flex-direction: column; justify-content: center; align-items: center; text-align: center; padding: 40px; }
         .admin-controls-panel { background: #f0f0f0; padding: 15px; border-radius: 8px; margin-bottom: 10px; }
 
+        /* --- NUEVO: ESTILOS PARA CHECKBOX BONITOS --- */
+        .checkbox-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+            cursor: pointer;
+            background: #fff;
+            border: 1px solid #ddd;
+            padding: 12px;
+            border-radius: 8px;
+            transition: all 0.2s;
+        }
+
+        .checkbox-container input[type="checkbox"] {
+            display: none; /* Oculta el nativo */
+        }
+
+        .custom-checkbox {
+            width: 24px;
+            height: 24px;
+            border: 2px solid #ccc;
+            border-radius: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            color: white;
+            background: white;
+            transition: all 0.2s;
+        }
+
+        /* Cuando está activo */
+        .checkbox-container.active {
+            background: #e8f5e9;
+            border-color: var(--success);
+        }
+
+        .checkbox-container.active .custom-checkbox {
+            background: var(--success);
+            border-color: var(--success);
+        }
+
     </style>
 </head>
 <body>
@@ -138,7 +166,7 @@
     <div id="maintenance-overlay">
         <i class="fas fa-tools fa-4x" style="color: var(--secondary); margin-bottom: 20px;"></i>
         <h2 style="color: #333;">TIENDA EN MANTENIMIENTO</h2>
-        <p style="color: #666; max-width: 300px; margin: 10px auto;">Estamos actualizando nuestro inventario para ofrecerte lo mejor. Vuelve en unos minutos.</p>
+        <p style="color: #666; max-width: 300px; margin: 10px auto;">Estamos actualizando nuestro inventario. Vuelve en unos minutos.</p>
         <button onclick="promptAdminLogin()" style="margin-top: 40px; background: transparent; border:none; color: #999; text-decoration: underline;">Acceso Propietario</button>
     </div>
 
@@ -160,48 +188,28 @@
     </header>
 
     <div class="banner" id="promo-banner">
-        <h2 id="banner-title">¡Gran Apertura!</h2>
-        <p id="banner-subtitle">Envíos a todo Santiago de Cuba</p>
+        <h2 id="banner-title">...</h2>
+        <p id="banner-subtitle">...</p>
         <div class="banner-edit-overlay" onclick="editBanner()">
             <i class="fas fa-edit"></i> Editar Banner
         </div>
     </div>
 
-    <div class="categories-scroll" id="category-list">
-        </div>
+    <div class="categories-scroll" id="category-list"></div>
 
-    <div class="grid" id="product-grid">
-        <div style="grid-column: 1/-1; text-align:center; padding:40px; color:#999;">Cargando productos...</div>
-    </div>
+    <div class="grid" id="product-grid"></div>
 
     <footer class="shop-footer">
         <div class="trust-badges">
-            <div class="badge-item">
-                <i class="fas fa-shield-alt"></i>
-                <span>Compra Segura</span>
-            </div>
-            <div class="badge-item">
-                <i class="fas fa-truck"></i>
-                <span>Domicilio Gratis</span>
-            </div>
-            <div class="badge-item">
-                <i class="fas fa-undo"></i>
-                <span>Garantía</span>
-            </div>
+            <div class="badge-item"><i class="fas fa-shield-alt"></i><span>Compra Segura</span></div>
+            <div class="badge-item"><i class="fas fa-truck"></i><span>Domicilio Gratis</span></div>
+            <div class="badge-item"><i class="fas fa-undo"></i><span>Garantía</span></div>
         </div>
-        
         <div class="contact-info">
-            <div class="contact-row">
-                <i class="fas fa-phone-alt"></i> 59207040
-            </div>
-            <div class="contact-row">
-                <i class="fas fa-envelope"></i> odh190302@gmail.com
-            </div>
+            <div class="contact-row"><i class="fas fa-phone-alt"></i> 59207040</div>
+            <div class="contact-row"><i class="fas fa-envelope"></i> odh190302@gmail.com</div>
         </div>
-        
-        <div class="copyright">
-            © 2024 PIN-PON SHOP Tienda Virtual. Todos los derechos reservados.
-        </div>
+        <div class="copyright">© 2024 PIN-PON SHOP. Todos los derechos reservados.</div>
     </footer>
 
     <div class="fab-cart" onclick="openCart()">
@@ -219,23 +227,25 @@
             <div id="admin-panel" style="display:none;">
                 <div class="admin-controls-panel">
                     <h4 style="margin-top:0;">🛠 Panel Administrador</h4>
-                    <label style="font-size:0.8rem;">Tasa de Cambio (1 USD = X MN)</label>
-                    <input type="number" id="exchange-rate" onchange="updateExchangeRate()" style="margin-bottom:10px;">
                     
-                    <label style="display:flex; align-items:center; gap:10px; margin-bottom: 10px;">
-                        <input type="checkbox" id="maintenance-toggle" style="width:auto; margin:0;" onchange="toggleMaintenance()"> 
-                        Activar Mantenimiento
+                    <label class="checkbox-container" id="container-maintenance">
+                        <input type="checkbox" id="check-maintenance" onchange="toggleMaintenance(this)">
+                        <div class="custom-checkbox"><i class="fas fa-check"></i></div>
+                        <span>Activar Modo Mantenimiento</span>
                     </label>
 
+                    <label style="font-size:0.8rem; margin-top:10px; display:block;">Tasa de Cambio (1 USD = X MN)</label>
+                    <input type="number" id="exchange-rate" value="300" onchange="updateSettings()" style="margin-bottom:10px;">
+                    
                     <button class="btn btn-success" onclick="openProductForm()"><i class="fas fa-plus"></i> Agregar Producto</button>
-                    <button class="btn btn-primary" onclick="openCategoryManager()"><i class="fas fa-list"></i> Gestionar Categorías</button>
+                    <button class="btn btn-primary" onclick="openCategoryManager(true)"><i class="fas fa-list"></i> Gestionar Categorías</button>
                 </div>
                 <button class="btn btn-danger" onclick="logoutAdmin()">Cerrar Sesión Admin</button>
             </div>
 
             <button id="login-btn" class="btn btn-primary" onclick="promptAdminLogin()">Soy el Administrador</button>
             <div style="margin-top:20px; font-size:0.9rem; color:#777; text-align:center;">
-                <p>PIN-PON SHOP v2.0</p>
+                <p>PIN-PON SHOP v6.0 (Cloud)</p>
             </div>
         </div>
     </div>
@@ -243,10 +253,8 @@
     <div class="modal" id="product-modal">
         <div class="modal-content">
             <button class="close-modal" style="position: absolute; right: 15px; top: 15px; z-index: 10;" onclick="closeModal('product-modal')">&times;</button>
-            
-            <img id="modal-img" class="img-large" src="" alt="">
-            
-            <h2 id="modal-title" style="margin: 0; font-size: 1.3rem;"></h2>
+            <img id="modal-img" class="img-large" src="" alt="" style="width:100%; height:300px; object-fit:contain;">
+            <h2 id="modal-title" style="margin: 10px 0 0 0; font-size: 1.3rem;"></h2>
             
             <label class="rating-label">Clasifique nuestro producto:</label>
             <div class="rating-interactive" id="modal-rating-container">
@@ -258,7 +266,6 @@
             </div>
 
             <p id="modal-desc" style="color: #666; line-height: 1.5; font-size: 0.95rem;"></p>
-            
             <div style="display: flex; align-items: baseline;">
                 <span class="detail-price" id="modal-price"></span>
                 <span class="detail-mn" id="modal-mn-price"></span>
@@ -270,19 +277,16 @@
                     <div class="qty-display-large" id="modal-qty-display">1</div>
                     <button class="qty-btn-large" onclick="updateModalQty(1)">+</button>
                 </div>
-                <button class="btn-add-large" id="modal-add-btn" onclick="addToCartFromModal()">
-                    Agregar al Carrito
-                </button>
+                <button class="btn-add-large" id="modal-add-btn" onclick="addToCartFromModal()">Agregar al Carrito</button>
             </div>
             
             <div id="admin-product-actions" style="display:none; margin-top: 15px; border-top: 1px dashed #ccc; padding-top: 15px;">
                 <p style="font-size: 0.8rem; font-weight: bold; color: var(--secondary);">OPCIONES ADMIN:</p>
                 <div style="display:flex; gap: 10px;">
-                    <button class="btn btn-info" onclick="editProductFromModal()">Editar Producto</button>
+                    <button class="btn btn-info" onclick="editProductFromModal()">Editar</button>
                     <button class="btn btn-danger" onclick="deleteProductFromModal()">Eliminar</button>
                 </div>
             </div>
-
         </div>
     </div>
 
@@ -292,14 +296,13 @@
                 <span class="modal-title-text">Tu Carrito</span>
                 <button class="close-modal" onclick="closeModal('cart-modal')">&times;</button>
             </div>
-            <div id="cart-items" style="flex-grow: 1; overflow-y: auto; margin-bottom: 20px;">
-                </div>
+            <div id="cart-items" style="flex-grow: 1; overflow-y: auto; margin-bottom: 20px;"></div>
             <div style="border-top: 1px solid #eee; padding-top: 15px;">
                 <div style="display: flex; justify-content: space-between; font-weight: 800; font-size: 1.2rem; margin-bottom: 15px;">
                     <span>Total:</span>
                     <span id="cart-total">$0.00</span>
                 </div>
-                <button class="btn btn-secondary" style="background: var(--secondary); color: white;" onclick="openCheckout()">Pagar Ahora</button>
+                <button class="btn btn-secondary" onclick="openCheckout()">Pagar Ahora</button>
             </div>
         </div>
     </div>
@@ -340,7 +343,7 @@
     <div class="modal" id="admin-product-modal">
         <div class="modal-content">
             <div class="modal-header">
-                <span class="modal-title-text" id="product-modal-title">Agregar Producto</span>
+                <span class="modal-title-text">Editar Producto</span>
                 <button class="close-modal" onclick="closeModal('admin-product-modal')">&times;</button>
             </div>
             <form id="product-form" onsubmit="saveProduct(event)">
@@ -365,19 +368,25 @@
                 <label>Descripción</label>
                 <textarea id="p-desc" rows="3"></textarea>
 
-                <label>Foto (Subir desde Galería)</label>
-                <input type="file" id="p-image-file" accept="image/*" onchange="handleImageFileChange(this)">
+                <label>Enlace de la Foto (Recomendado)</label>
+                <input type="url" id="p-img-url" placeholder="https://..." onchange="previewUrl(this.value)">
+
+                <label style="font-size:0.8rem; color:#666;">O subir desde galería (Solo imágenes pequeñas)</label>
+                <input type="file" id="p-image-file" accept="image/*" onchange="handleImageUpload(this)">
+                
                 <input type="hidden" id="p-image-data">
                 <div id="p-image-preview" style="width: 100px; height: 100px; background: #eee; margin-bottom: 15px; border-radius: 8px; overflow: hidden; background-size: cover; background-position: center;"></div>
 
                 <div style="margin-bottom: 20px;">
-                    <label style="display:flex; align-items:center; gap:10px; margin-bottom: 5px;">
-                        <input type="checkbox" id="p-is-new" style="width:auto; margin:0;"> 
-                        Marcar como NUEVO (Etiqueta visible)
+                    <label class="checkbox-container" id="container-new">
+                        <input type="checkbox" id="p-is-new" onchange="toggleCheckStyle(this)"> 
+                        <div class="custom-checkbox"><i class="fas fa-check"></i></div>
+                        <span>Marcar como NUEVO</span>
                     </label>
-                    <label style="display:flex; align-items:center; gap:10px;">
-                        <input type="checkbox" id="p-stock" style="width:auto; margin:0;" checked> 
-                        Producto en Existencia
+                    <label class="checkbox-container" id="container-stock">
+                        <input type="checkbox" id="p-stock" onchange="toggleCheckStyle(this)" checked> 
+                        <div class="custom-checkbox"><i class="fas fa-check"></i></div>
+                        <span>Producto en Existencia</span>
                     </label>
                 </div>
 
@@ -401,261 +410,132 @@
     </div>
 
     <script>
-        // --- 2. CONFIGURACIÓN LOCAL ---
-        const WHATSAPP_NUMBER = "5359207040"; // Tu número de WhatsApp
-        const ADMIN_PASS = "oscardh190302"; // Tu contraseña de administrador
-        
-        // --- 3. FIREBASE CONFIG & INIT ---
+        // --- 1. CONFIGURACIÓN FIREBASE ---
+        // Pega aquí TU configuración de Firebase (la misma de antes)
         const firebaseConfig = {
             apiKey: "AIzaSyA04fdbHRhwgJVQrEtDJoAm7adm99h6a_w",
             authDomain: "pinponshop-2f5c8.firebaseapp.com",
-            databaseURL: "https://pinponshop-2f5c8-default-rtdb.firebaseio.com",
             projectId: "pinponshop-2f5c8",
             storageBucket: "pinponshop-2f5c8.firebasestorage.app",
             messagingSenderId: "433977596942",
             appId: "1:433977596942:web:9f4fbbd81cf2e640a4f05f"
         };
         
-        // Inicializar Firebase y los servicios de Firestore y Storage
-        const app = firebase.initializeApp(firebaseConfig);
-        const db = app.firestore();
-        const storage = app.storage();
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+        
+        const configRef = db.collection("config").doc("store");
+        const productsRef = db.collection("products");
+        const categoriesRef = db.collection("categories");
 
-        // --- ESTADO GLOBAL (SIN DATOS DEMO) ---
+        // --- 2. VARIABLES GLOBALES ---
+        const WHATSAPP_NUMBER = "5359207040";
+        const ADMIN_PASS = "oscardh190302";
+
         let state = {
             isAdmin: false,
-            maintenance: false,
-            exchangeRate: 300,
-            bannerTitle: "Grandes Ofertas de Apertura",
-            bannerSub: "Compra con confianza en Santiago de Cuba",
-            categories: ["Electrodomésticos", "Vehículos", "Baterías"],
-            products: [], 
-            cart: [],
-            ratings: {} 
+            maintenance: false, 
+            exchangeRate: 300, 
+            bannerTitle: "Cargando...", 
+            bannerSub: "...", 
+            categories: [],     
+            products: [],      
+            cart: JSON.parse(localStorage.getItem('pinpon_cart')) || [], 
+            ratings: JSON.parse(localStorage.getItem('pinpon_ratings')) || {} 
         };
 
         let tempModalQty = 1;
         let activeModalProductId = null;
-        let imageFileToUpload = null;
 
-        // ===========================================
-        // === 4. FIREBASE DATA HANDLERS (CRUD) ======
-        // ===========================================
-
-        // Carga la configuración inicial (tasa, banner, mantenimiento, categorías)
-        async function fetchSettings() {
-            try {
-                const settingsRef = db.collection('settings').doc('shop_config');
-                const doc = await settingsRef.get();
-
+        // --- 3. INICIO ---
+        function init() {
+            // Escuchar Configuración
+            configRef.onSnapshot(doc => {
                 if (doc.exists) {
                     const data = doc.data();
+                    state.maintenance = data.maintenance || false;
                     state.exchangeRate = data.exchangeRate || 300;
                     state.bannerTitle = data.bannerTitle || "¡Gran Apertura!";
                     state.bannerSub = data.bannerSub || "Envíos a todo Santiago de Cuba";
-                    state.maintenance = data.maintenance || false;
-                    state.categories = data.categories || ["Electrodomésticos"];
-                } else {
-                    // Si es la primera vez, crea el documento de configuración
-                    await settingsRef.set({
-                        exchangeRate: state.exchangeRate,
-                        bannerTitle: state.bannerTitle,
-                        bannerSub: state.bannerSub,
-                        maintenance: state.maintenance,
-                        categories: state.categories
-                    });
+                    renderAll();
+                } else if(state.isAdmin) {
+                    configRef.set({ maintenance: false, exchangeRate: 300, bannerTitle: "Hola", bannerSub: "Mundo" });
                 }
-            } catch (error) {
-                console.error("Error fetching settings:", error);
-            }
-        }
+            });
 
-        // Guarda cualquier campo de la configuración
-        async function updateSettings(fields) {
-            try {
-                await db.collection('settings').doc('shop_config').update(fields);
-                await fetchSettings(); // Re-fetch all to sync state
-            } catch (error) {
-                console.error("Error updating settings:", error);
-                alert("Error al guardar la configuración.");
-            }
-        }
-        
-        // Carga los productos
-        async function fetchProducts() {
-            state.products = [];
-            try {
-                const snapshot = await db.collection('products').get();
-                snapshot.forEach(doc => {
-                    // Mapeamos el ID de Firestore al objeto de producto
-                    state.products.push({ id: doc.id, ...doc.data() });
-                });
-            } catch (error) {
-                console.error("Error fetching products:", error);
-            }
-        }
+            // Escuchar Categorías
+            categoriesRef.onSnapshot(snapshot => {
+                state.categories = snapshot.docs.map(doc => doc.data().name);
+                renderCategories();
+            });
 
-        // Guarda o actualiza un producto (incluye carga de imagen)
-        async function saveProduct(e) {
-            e.preventDefault();
-            const id = document.getElementById('p-id').value;
+            // Escuchar Productos
+            productsRef.onSnapshot(snapshot => {
+                state.products = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+                renderProducts(); 
+            });
             
-            const productData = {
-                name: document.getElementById('p-name').value,
-                category: document.getElementById('p-category').value,
-                price: parseFloat(document.getElementById('p-price').value),
-                oldPrice: document.getElementById('p-old-price').value ? parseFloat(document.getElementById('p-old-price').value) : 0,
-                desc: document.getElementById('p-desc').value,
-                stock: document.getElementById('p-stock').checked,
-                isNew: document.getElementById('p-is-new').checked,
-                image: document.getElementById('p-image-data').value || "https://via.placeholder.com/400?text=SIN+IMAGEN",
-                // Conservar la imagen existente si no se sube una nueva
-            };
+            updateCartIcon();
+            
+            // Verificar sesión admin guardada
+            if(localStorage.getItem('pinpon_admin_logged') === 'true'){
+                state.isAdmin = true;
+            }
+            renderAdminUI();
+        }
 
-            try {
-                let imageUrl = productData.image;
+        function saveDataLocal() { 
+            localStorage.setItem('pinpon_cart', JSON.stringify(state.cart));
+            localStorage.setItem('pinpon_ratings', JSON.stringify(state.ratings));
+        }
 
-                if (imageFileToUpload) {
-                    const storageRef = storage.ref();
-                    const fileName = `${Date.now()}-${imageFileToUpload.name}`;
-                    const imageRef = storageRef.child(`product_images/${fileName}`);
-                    
-                    document.querySelector('.btn-primary').innerText = "Subiendo imagen...";
-                    document.querySelector('.btn-primary').disabled = true;
-
-                    const snapshot = await imageRef.put(imageFileToUpload);
-                    imageUrl = await snapshot.ref.getDownloadURL();
-                    productData.image = imageUrl;
-                }
-
-                if (id) {
-                    // Editar Producto
-                    await db.collection('products').doc(id).update(productData);
-                    alert("Producto actualizado exitosamente.");
-                } else {
-                    // Nuevo Producto
-                    await db.collection('products').add(productData);
-                    alert("Producto agregado exitosamente.");
-                }
-                
-                // Limpiar estado temporal y refrescar la tienda
-                imageFileToUpload = null;
-                await fetchProducts();
-                closeModal('admin-product-modal');
-                renderAll();
-
-            } catch (error) {
-                console.error("Error saving product:", error);
-                alert("Error al guardar el producto. Revisa la consola.");
-            } finally {
-                document.querySelector('.btn-primary').innerText = "Guardar Cambios";
-                document.querySelector('.btn-primary').disabled = false;
+        // --- 4. UI HELPERS (CHECKBOXES) ---
+        function toggleCheckStyle(checkbox) {
+            // Encuentra el contenedor padre con la clase .checkbox-container
+            const container = checkbox.closest('.checkbox-container');
+            if (checkbox.checked) {
+                container.classList.add('active');
+            } else {
+                container.classList.remove('active');
             }
         }
 
-        // ===========================================
-        // === 5. RENDERING (Fixed Order) ============
-        // ===========================================
+        function toggleMaintenance(checkbox) {
+            // Guardar directamente en Firestore
+            configRef.update({ maintenance: checkbox.checked })
+                .catch(err => alert("Error al cambiar mantenimiento: " + err.message));
+            toggleCheckStyle(checkbox);
+        }
+
+        // --- 5. RENDERIZADO ---
+        function renderAll() {
+            renderBanner();
+            // renderCategories y Products son automáticos por Firestore
+            updateCartIcon();
+            checkMaintenance();
+            renderAdminUI();
+        }
+
+        function renderAdminUI() {
+            const isAdmin = state.isAdmin;
+            document.getElementById('admin-indicator').style.display = isAdmin ? 'inline-block' : 'none';
+            document.getElementById('login-btn').style.display = isAdmin ? 'none' : 'block';
+            document.getElementById('admin-panel').style.display = isAdmin ? 'block' : 'none';
+            
+            if(isAdmin) {
+                document.getElementById('exchange-rate').value = state.exchangeRate;
+                const maintCheck = document.getElementById('check-maintenance');
+                if(maintCheck) {
+                    maintCheck.checked = state.maintenance;
+                    toggleCheckStyle(maintCheck);
+                }
+            }
+        }
 
         function renderBanner() {
             document.getElementById('banner-title').innerText = state.bannerTitle;
             document.getElementById('banner-subtitle').innerText = state.bannerSub;
             document.querySelector('.banner-edit-overlay').style.display = state.isAdmin ? 'flex' : 'none';
-        }
-
-        function renderCategories() {
-            const container = document.getElementById('category-list');
-            let html = `<div class="cat-pill active" onclick="selectCategory('all', this)">Todos</div>`;
-            state.categories.forEach(cat => {
-                html += `<div class="cat-pill" onclick="selectCategory('${cat}', this)">${cat}</div>`;
-            });
-            container.innerHTML = html;
-        }
-
-        function renderProducts(filterCategory = 'all', searchTerm = '') {
-            const grid = document.getElementById('product-grid');
-            grid.innerHTML = '';
-
-            let filtered = state.products;
-
-            const activePill = document.querySelector('.cat-pill.active');
-            const activeCat = activePill && activePill.innerText !== 'Todos' ? activePill.innerText : filterCategory;
-            
-            if (activeCat !== 'all') {
-                filtered = filtered.filter(p => p.category === activeCat);
-            }
-
-            if (searchTerm) {
-                filtered = filtered.filter(p => 
-                    p.name.toLowerCase().includes(searchTerm) || 
-                    (p.desc && p.desc.toLowerCase().includes(searchTerm))
-                );
-            }
-
-            if (filtered.length === 0) {
-                grid.innerHTML = `<div style="grid-column: 1/-1; text-align:center; padding:40px; color:#999;">No se encontraron productos en esta categoría.</div>`;
-                return;
-            }
-
-            filtered.forEach(p => {
-                const isSale = p.oldPrice && p.oldPrice > p.price;
-                const percent = isSale ? Math.round(((p.oldPrice - p.price) / p.oldPrice) * 100) : 0;
-                const myRating = state.ratings[p.id] || 0;
-                const starColor = myRating > 0 ? 'var(--gold)' : '#ddd';
-
-                const card = document.createElement('div');
-                card.className = 'product-card';
-                card.onclick = (e) => {
-                    if(!e.target.closest('.qty-mini') && !e.target.closest('.add-btn-mini')) {
-                        openProductModal(p.id);
-                    }
-                };
-                
-                const stockOverlay = !p.stock ? `<div class="out-of-stock-overlay">AGOTADO</div>` : '';
-                const saleBadge = isSale ? `<div style="position:absolute; top:5px; left:5px; background:var(--accent); color:white; font-size:0.7rem; font-weight:bold; padding:2px 6px; border-radius:4px;">-${percent}%</div>` : '';
-                const newBadge = p.isNew ? `<span class="p-sales" style="background: var(--secondary); color: white;">Nuevo</span>` : '<span class="p-sales">Popular</span>';
-
-                card.innerHTML = `
-                    ${stockOverlay}
-                    <div class="img-container">
-                        <img src="${p.image}" alt="${p.name}" loading="lazy">
-                        ${saleBadge}
-                    </div>
-                    <div class="p-details">
-                        <h3 class="p-title">${p.name}</h3>
-                        
-                        <div class="p-meta">
-                            <div style="color:${starColor}; font-size:0.7rem;">
-                                <i class="fas fa-star"></i> ${myRating > 0 ? myRating + '.0' : '4.8'}
-                            </div>
-                            ${newBadge}
-                        </div>
-
-                        <div class="p-price-row">
-                            <span class="p-currency">USD</span>
-                            <span class="p-price">${p.price.toFixed(2)}</span>
-                            ${isSale ? `<span class="p-old-price">$${p.oldPrice.toFixed(2)}</span>` : ''}
-                        </div>
-
-                        <div class="card-controls">
-                            <div class="qty-mini" onclick="event.stopPropagation()">
-                                <button class="qty-mini-btn" onclick="updateCardQty('${p.id}', -1)">-</button>
-                                <span class="qty-mini-val" id="card-qty-${p.id}">1</span>
-                                <button class="qty-mini-btn" onclick="updateCardQty('${p.id}', 1)">+</button>
-                            </div>
-                            <div class="add-btn-mini" onclick="addFromCard('${p.id}')">
-                                <i class="fas fa-cart-plus"></i>
-                            </div>
-                        </div>
-                    </div>
-                `;
-                grid.appendChild(card);
-            });
-        }
-        
-        function updateCartIcon() {
-            const total = state.cart.reduce((sum, item) => sum + item.qty, 0);
-            document.getElementById('cart-count').innerText = total;
         }
 
         function checkMaintenance() {
@@ -669,410 +549,18 @@
             }
         }
 
-        function renderAll() {
-            renderBanner();
-            renderCategories();
-            renderProducts();
-            updateCartIcon();
-            checkMaintenance();
+        function renderCategories() {
+            const container = document.getElementById('category-list');
+            const activePill = document.querySelector('.cat-pill.active')?.innerText || 'Todos';
             
-            // UI Admin changes
-            document.getElementById('admin-indicator').style.display = state.isAdmin ? 'inline-block' : 'none';
-            document.getElementById('login-btn').style.display = state.isAdmin ? 'none' : 'block';
-            document.getElementById('admin-panel').style.display = state.isAdmin ? 'block' : 'none';
-            document.getElementById('exchange-rate').value = state.exchangeRate;
-            document.getElementById('maintenance-toggle').checked = state.maintenance;
-        }
-
-        // ===========================================
-        // === 6. APP START & LOCAL STORAGE LOGIC ====
-        // ===========================================
-
-        function saveLocalData(key, data) {
-            localStorage.setItem(`pinpon_${key}`, JSON.stringify(data));
-        }
-
-        async function init() {
-            // Cargar datos locales de usuario (carrito, ratings, admin state)
-            state.isAdmin = localStorage.getItem('pinpon_admin') === 'true';
-            const savedCart = localStorage.getItem('pinpon_cart');
-            if (savedCart) state.cart = JSON.parse(savedCart);
-            const savedRatings = localStorage.getItem('pinpon_ratings');
-            if (savedRatings) state.ratings = JSON.parse(savedRatings);
-
-            // Cargar datos de la tienda de Firebase
-            await fetchSettings();
-            await fetchProducts();
-            
-            // Renderizar la interfaz
-            renderAll();
-        }
-
-        // El resto de las funciones de la tienda deben ir aquí...
-
-        // --- LÓGICA DE PRODUCTO Y MODAL ---
-        function updateCardQty(id, change) {
-            const el = document.getElementById(`card-qty-${id}`);
-            let val = parseInt(el.innerText);
-            val += change;
-            if (val < 1) val = 1;
-            el.innerText = val;
-        }
-
-        function addFromCard(id) {
-            const qty = parseInt(document.getElementById(`card-qty-${id}`).innerText);
-            addToCart(id, qty);
-        }
-
-        function openProductModal(id) {
-            const p = state.products.find(x => x.id === id);
-            if (!p) return;
-            activeModalProductId = id;
-            tempModalQty = 1;
-
-            document.getElementById('modal-img').src = p.image;
-            document.getElementById('modal-title').innerText = p.name;
-            document.getElementById('modal-desc').innerText = p.desc || "Sin descripción detallada.";
-            document.getElementById('modal-price').innerText = `$${p.price.toFixed(2)}`;
-            
-            const mnVal = (p.price * state.exchangeRate).toFixed(0);
-            document.getElementById('modal-mn-price').innerText = `(${mnVal} CUP)`;
-
-            document.getElementById('modal-qty-display').innerText = "1";
-            
-            renderModalStars(state.ratings[id] || 0);
-
-            const btn = document.getElementById('modal-add-btn');
-            if (p.stock) {
-                btn.disabled = false;
-                btn.style.background = "var(--secondary)";
-                btn.innerHTML = `Agregar <i class="fas fa-cart-plus"></i>`;
-            } else {
-                btn.disabled = true;
-                btn.style.background = "#ccc";
-                btn.innerText = "Agotado";
-            }
-
-            // CONTROLES ADMIN VISIBLES
-            const adminActions = document.getElementById('admin-product-actions');
-            if (state.isAdmin) {
-                adminActions.style.display = 'block';
-            } else {
-                adminActions.style.display = 'none';
-            }
-
-            openModal('product-modal');
-        }
-
-        function updateModalQty(change) {
-            tempModalQty += change;
-            if (tempModalQty < 1) tempModalQty = 1;
-            document.getElementById('modal-qty-display').innerText = tempModalQty;
-        }
-
-        function addToCartFromModal() {
-            addToCart(activeModalProductId, tempModalQty);
-            closeModal('product-modal');
-        }
-
-        // --- SISTEMA DE ESTRELLAS ---
-        function renderModalStars(rating) {
-            const container = document.getElementById('modal-rating-container');
-            const stars = container.querySelectorAll('i');
-            stars.forEach((star, index) => {
-                if (index < rating) {
-                    star.classList.add('active');
-                    star.classList.remove('far');
-                    star.classList.add('fas');
-                } else {
-                    star.classList.remove('active');
-                    star.classList.remove('fas');
-                    star.classList.add('far');
-                }
+            let html = `<div class="cat-pill ${activePill === 'Todos' ? 'active' : ''}" onclick="selectCategory('all', this)">Todos</div>`;
+            state.categories.forEach(cat => {
+                html += `<div class="cat-pill ${activePill === cat ? 'active' : ''}" onclick="selectCategory('${cat}', this)">${cat}</div>`;
             });
-        }
-
-        function rateProduct(stars) {
-            if (activeModalProductId) {
-                state.ratings[activeModalProductId] = stars;
-                saveLocalData('ratings', state.ratings);
-                renderModalStars(stars);
-                renderProducts(); 
-            }
-        }
-
-        // --- CARRITO ---
-        function addToCart(id, qty) {
-            const p = state.products.find(x => x.id === id);
-            if (!p || !p.stock) return;
-
-            const existing = state.cart.find(x => x.id === id);
-            if (existing) {
-                existing.qty += qty;
-            } else {
-                state.cart.push({ id: id, qty: qty });
-            }
-            saveLocalData('cart', state.cart);
-            updateCartIcon();
-            const badge = document.getElementById('cart-count');
-            badge.style.transform = "scale(1.5)";
-            setTimeout(() => badge.style.transform = "scale(1)", 200);
-        }
-
-        function openCart() {
-            const container = document.getElementById('cart-items');
-            container.innerHTML = '';
-            let totalUSD = 0;
-
-            if (state.cart.length === 0) {
-                container.innerHTML = `<div style="text-align:center; padding:20px; color:#999;">El carrito está vacío ☹️</div>`;
-                document.getElementById('cart-total').innerText = "$0.00";
-                openModal('cart-modal');
-                return;
-            }
-
-            state.cart.forEach((item, idx) => {
-                const p = state.products.find(x => x.id === item.id);
-                if (!p) return;
-                const subtotal = p.price * item.qty;
-                totalUSD += subtotal;
-
-                container.innerHTML += `
-                    <div style="display:flex; gap:10px; margin-bottom:15px; border-bottom:1px solid #f9f9f9; padding-bottom:10px;">
-                        <img src="${p.image}" style="width:50px; height:50px; object-fit:cover; border-radius:4px;">
-                        <div style="flex:1;">
-                            <div style="font-weight:600; font-size:0.9rem;">${p.name}</div>
-                            <div style="font-size:0.8rem; color:#666;">$${p.price} x ${item.qty}</div>
-                        </div>
-                        <div style="display:flex; flex-direction:column; align-items:flex-end;">
-                            <div style="font-weight:bold;">$${subtotal.toFixed(2)}</div>
-                            <button onclick="removeFromCart(${idx})" style="color:red; background:none; border:none; font-size:0.8rem; margin-top:5px;">Eliminar</button>
-                        </div>
-                    </div>
-                `;
-            });
-
-            const totalMN = (totalUSD * state.exchangeRate).toFixed(0);
-            document.getElementById('cart-total').innerText = `$${totalUSD.toFixed(2)} USD (${totalMN} MN)`;
-            openModal('cart-modal');
-        }
-
-        function removeFromCart(idx) {
-            state.cart.splice(idx, 1);
-            saveLocalData('cart', state.cart);
-            openCart(); 
-        }
-
-        // --- CHECKOUT & WHATSAPP ---
-        function openCheckout() {
-            if (state.cart.length === 0) return alert("Añade productos primero.");
-            closeModal('cart-modal');
-            openModal('checkout-modal');
-            let t = 0;
-            state.cart.forEach(i => {
-                const p = state.products.find(x => x.id === i.id);
-                if(p) t += p.price * i.qty;
-            });
-            const mn = (t * state.exchangeRate).toFixed(0);
-            document.getElementById('checkout-total-display').innerText = `$${t.toFixed(2)} USD / ${mn} MN`;
-        }
-
-        function processOrder(e) {
-            e.preventDefault();
+            container.innerHTML = html;
             
-            const formData = {
-                name: document.getElementById('c-name').value,
-                ci: document.getElementById('c-ci').value,
-                addr: document.getElementById('c-address').value,
-                phone: document.getElementById('c-phone').value,
-                date: document.getElementById('c-date').value,
-                pay: document.getElementById('c-payment').value
-            };
-
-            let msg = `🛍 *NUEVO PEDIDO - PIN-PON SHOP*\n`;
-            msg += `--------------------------------\n`;
-            msg += `👤 *Cliente:* ${formData.name}\n`;
-            msg += `🆔 *CI:* ${formData.ci}\n`;
-            msg += `📞 *Contacto:* ${formData.phone}\n`;
-            msg += `📍 *Dirección:* ${formData.addr}\n`;
-            msg += `📅 *Entrega:* ${formData.date}\n`;
-            msg += `💳 *Pago:* ${formData.pay}\n`;
-            msg += `--------------------------------\n`;
-            msg += `*DETALLES DEL PEDIDO:*\n`;
-
-            let total = 0;
-            state.cart.forEach(item => {
-                const p = state.products.find(x => x.id === item.id);
-                if (p) {
-                    const sub = p.price * item.qty;
-                    total += sub;
-                    msg += `▫️ ${p.name} (x${item.qty}) - $${sub.toFixed(2)}\n`;
-                }
-            });
-
-            const totalMN = (total * state.exchangeRate).toFixed(0);
-            msg += `\n💰 *TOTAL FINAL:* $${total.toFixed(2)} USD\n`;
-            msg += `💵 *En CUP:* ${totalMN} MN\n`;
-            msg += `--------------------------------\n`;
-            msg += `Confirmo que los datos son correctos.`;
-
-            const url = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(msg)}`;
-            window.open(url, '_blank');
-
-            // Limpiar carrito y recargar
-            state.cart = [];
-            saveLocalData('cart', state.cart);
-            location.reload(); 
-        }
-
-        // --- ADMIN FUNCTIONS ---
-        function promptAdminLogin() {
-            const pass = prompt("Contraseña de Administrador:");
-            if (pass === ADMIN_PASS) {
-                state.isAdmin = true;
-                localStorage.setItem('pinpon_admin', 'true');
-                renderAll();
-                closeModal('menu-modal');
-                alert("Sesión de administrador iniciada.");
-            } else {
-                alert("Contraseña incorrecta.");
-            }
-        }
-
-        function logoutAdmin() {
-            state.isAdmin = false;
-            localStorage.setItem('pinpon_admin', 'false');
-            renderAll();
-        }
-
-        async function editBanner() {
-            if(!state.isAdmin) return;
-            const t = prompt("Nuevo Título:", state.bannerTitle);
-            const s = prompt("Nuevo Subtítulo:", state.bannerSub);
-            if(t && s) {
-                await updateSettings({ bannerTitle: t, bannerSub: s });
-            }
-        }
-
-        async function updateExchangeRate() {
-            const rate = parseFloat(document.getElementById('exchange-rate').value);
-            if(rate && rate > 0) {
-                await updateSettings({ exchangeRate: rate });
-            }
-        }
-
-        async function toggleMaintenance() {
-            const isChecked = document.getElementById('maintenance-toggle').checked;
-            await updateSettings({ maintenance: isChecked });
-        }
-
-        // GESTIÓN PRODUCTOS
-        function openProductForm() {
-            document.getElementById('product-form').reset();
-            document.getElementById('p-id').value = '';
-            document.getElementById('p-image-data').value = '';
-            document.getElementById('p-image-preview').style.backgroundImage = 'none';
-            document.getElementById('product-modal-title').innerText = 'Agregar Producto';
-            imageFileToUpload = null;
-            
-            const sel = document.getElementById('p-category');
-            sel.innerHTML = '';
-            state.categories.forEach(c => sel.innerHTML += `<option value="${c}">${c}</option>`);
-
-            openModal('admin-product-modal');
-            closeModal('menu-modal');
-        }
-
-        function editProductFromModal() {
-            if (!activeModalProductId) return;
-            closeModal('product-modal');
-            const p = state.products.find(x => x.id === activeModalProductId);
-            
-            openProductForm();
-            document.getElementById('product-modal-title').innerText = 'Editar Producto';
-            document.getElementById('p-id').value = p.id;
-            document.getElementById('p-name').value = p.name;
-            document.getElementById('p-category').value = p.category;
-            document.getElementById('p-price').value = p.price;
-            document.getElementById('p-old-price').value = p.oldPrice || '';
-            document.getElementById('p-desc').value = p.desc || '';
-            document.getElementById('p-stock').checked = p.stock;
-            document.getElementById('p-is-new').checked = p.isNew || false;
-            document.getElementById('p-image-data').value = p.image;
-            document.getElementById('p-image-preview').style.backgroundImage = `url('${p.image}')`;
-        }
-
-        async function deleteProductFromModal() {
-            if (!activeModalProductId) return;
-            if(confirm("¿Estás seguro de eliminar este producto permanentemente? Esta acción no se puede deshacer.")) {
-                try {
-                    await db.collection('products').doc(activeModalProductId).delete();
-                    await fetchProducts(); // Refrescar productos
-                    alert("Producto eliminado exitosamente.");
-                    closeModal('product-modal');
-                    renderAll();
-                } catch (error) {
-                    console.error("Error deleting product:", error);
-                    alert("Error al eliminar el producto.");
-                }
-            }
-        }
-
-        function handleImageFileChange(input) {
-            if (input.files && input.files[0]) {
-                const file = input.files[0];
-                imageFileToUpload = file; // Guardar el archivo para subir a Storage
-                
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    // Mostrar preview temporal usando DataURL
-                    document.getElementById('p-image-preview').style.backgroundImage = `url('${e.target.result}')`;
-                }
-                reader.readAsDataURL(file);
-            } else {
-                imageFileToUpload = null;
-                // Si borra el archivo, mantiene la imagen existente (que está en p-image-data)
-            }
-        }
-
-        // GESTIÓN CATEGORÍAS
-        function openCategoryManager() {
-            closeModal('menu-modal');
-            renderCategoryManagerList();
-            openModal('category-manager-modal');
-        }
-
-        function renderCategoryManagerList() {
-            const list = document.getElementById('category-list-admin');
-            list.innerHTML = '';
-            state.categories.forEach((c, i) => {
-                list.innerHTML += `
-                    <div style="display:flex; justify-content:space-between; padding:10px; border-bottom:1px solid #eee; align-items:center;">
-                        <span style="font-weight:500;">${c}</span>
-                        <button onclick="deleteCategory('${c}')" style="color:white; background:#ff4444; border:none; padding:5px 10px; border-radius:4px; cursor:pointer;">Eliminar</button>
-                    </div>`;
-            });
-        }
-
-        async function addCategory() {
-            const val = document.getElementById('new-category-input').value.trim();
-            if(val && !state.categories.includes(val)) {
-                const newCategories = [...state.categories, val];
-                await updateSettings({ categories: newCategories });
-                document.getElementById('new-category-input').value = '';
-                renderCategoryManagerList();
-                renderCategories();
-            } else if (state.categories.includes(val)) {
-                alert("Esa categoría ya existe.");
-            }
-        }
-
-        async function deleteCategory(categoryName) {
-            if(confirm(`¿Estás seguro de eliminar la categoría "${categoryName}"? Los productos en esta categoría no serán eliminados, pero quedarán sin categoría visible.`)) {
-                const newCategories = state.categories.filter(c => c !== categoryName);
-                await updateSettings({ categories: newCategories });
-                renderCategoryManagerList();
-                renderCategories();
+            if(document.getElementById('category-manager-modal').classList.contains('open')) {
+                 openCategoryManager(false);
             }
         }
 
@@ -1081,22 +569,281 @@
             el.classList.add('active');
             renderProducts(cat);
         }
-        
+
         function searchProducts() {
             const term = document.getElementById('search-bar').value.toLowerCase();
-            const activePill = document.querySelector('.cat-pill.active');
-            const activeCat = activePill && activePill.innerText !== 'Todos' ? activePill.innerText : 'all';
-            renderProducts(activeCat, term);
+            renderProducts('all', term);
         }
 
+        function renderProducts(filterCategory = 'all', searchTerm = '') {
+            const grid = document.getElementById('product-grid');
+            grid.innerHTML = '';
 
-        // HELPER MODALS
+            let filtered = state.products;
+            const activePill = document.querySelector('.cat-pill.active');
+            let activeCat = activePill ? activePill.innerText : 'Todos';
+            if(filterCategory !== 'all') activeCat = filterCategory;
+            
+            if (activeCat !== 'Todos') filtered = filtered.filter(p => p.category === activeCat);
+
+            if (searchTerm) {
+                filtered = filtered.filter(p => 
+                    p.name.toLowerCase().includes(searchTerm) || 
+                    (p.desc && p.desc.toLowerCase().includes(searchTerm))
+                );
+            }
+
+            if (filtered.length === 0) {
+                grid.innerHTML = `<div style="grid-column: 1/-1; text-align:center; padding:40px; color:#999;">No hay productos aquí.</div>`;
+                return;
+            }
+
+            filtered.forEach(p => {
+                const isSale = p.oldPrice && p.oldPrice > p.price;
+                const percent = isSale ? Math.round(((p.oldPrice - p.price) / p.oldPrice) * 100) : 0;
+                
+                const card = document.createElement('div');
+                card.className = 'product-card';
+                card.onclick = (e) => {
+                    if(!e.target.closest('.qty-mini') && !e.target.closest('.add-btn-mini')) openProductModal(p.id);
+                };
+                
+                const stockOverlay = !p.stock ? `<div class="out-of-stock-overlay">AGOTADO</div>` : '';
+                const saleBadge = isSale ? `<div style="position:absolute; top:5px; left:5px; background:var(--accent); color:white; font-size:0.7rem; font-weight:bold; padding:2px 6px; border-radius:4px;">-${percent}%</div>` : '';
+                const newBadge = p.isNew ? `<span class="p-sales" style="background: var(--secondary); color: white;">Nuevo</span>` : '';
+
+                card.innerHTML = `
+                    ${stockOverlay}
+                    <div class="img-container">
+                        <img src="${p.image}" alt="${p.name}" loading="lazy">
+                        ${saleBadge} ${newBadge ? newBadge : ''}
+                    </div>
+                    <div class="p-details">
+                        <h3 class="p-title">${p.name}</h3>
+                        <div class="p-price-row">
+                            <span class="p-currency">USD</span>
+                            <span class="p-price">${p.price.toFixed(2)}</span>
+                            ${isSale ? `<span class="p-old-price">$${p.oldPrice.toFixed(2)}</span>` : ''}
+                        </div>
+                        <div class="card-controls">
+                            <div class="qty-mini" onclick="event.stopPropagation()">
+                                <button class="qty-mini-btn" onclick="updateCardQty('${p.id}', -1)">-</button>
+                                <span class="qty-mini-val" id="card-qty-${p.id}">1</span>
+                                <button class="qty-mini-btn" onclick="updateCardQty('${p.id}', 1)">+</button>
+                            </div>
+                            <div class="add-btn-mini" onclick="addFromCard('${p.id}')"><i class="fas fa-cart-plus"></i></div>
+                        </div>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        // --- 6. LÓGICA DE MODALES Y FORMULARIOS ---
+
+        function openProductForm() {
+            document.getElementById('product-form').reset();
+            document.getElementById('p-id').value = '';
+            document.getElementById('p-image-preview').style.backgroundImage = 'none';
+            document.getElementById('p-img-url').value = ''; // Limpiar URL
+            document.getElementById('p-image-data').value = ''; // Limpiar data
+            
+            // Reset visual checks
+            const checkNew = document.getElementById('p-is-new');
+            const checkStock = document.getElementById('p-stock');
+            checkNew.checked = false; 
+            checkStock.checked = true;
+            toggleCheckStyle(checkNew);
+            toggleCheckStyle(checkStock);
+
+            const sel = document.getElementById('p-category');
+            sel.innerHTML = '';
+            state.categories.forEach(c => sel.innerHTML += `<option value="${c}">${c}</option>`);
+
+            openModal('admin-product-modal');
+        }
+
+        function editProductFromModal() {
+            if (!activeModalProductId) return;
+            closeModal('product-modal');
+            const p = state.products.find(x => x.id === activeModalProductId);
+            
+            openProductForm();
+            document.getElementById('p-id').value = p.id;
+            document.getElementById('p-name').value = p.name;
+            document.getElementById('p-category').value = p.category;
+            document.getElementById('p-price').value = p.price;
+            document.getElementById('p-old-price').value = p.oldPrice || '';
+            document.getElementById('p-desc').value = p.desc || '';
+            document.getElementById('p-img-url').value = p.image.startsWith('data:') ? '' : p.image;
+            document.getElementById('p-image-data').value = p.image; // Guardar actual por si no cambia
+            document.getElementById('p-image-preview').style.backgroundImage = `url('${p.image}')`;
+
+            const checkNew = document.getElementById('p-is-new');
+            const checkStock = document.getElementById('p-stock');
+            checkNew.checked = p.isNew;
+            checkStock.checked = p.stock;
+            toggleCheckStyle(checkNew);
+            toggleCheckStyle(checkStock);
+        }
+
+        // Manejar URL de imagen
+        function previewUrl(url) {
+            if(url) {
+                document.getElementById('p-image-preview').style.backgroundImage = `url('${url}')`;
+                document.getElementById('p-image-data').value = url; // Guardamos la URL como data final
+            }
+        }
+
+        // Manejar subida de archivo (Base64)
+        function handleImageUpload(input) {
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const result = e.target.result;
+                    document.getElementById('p-image-data').value = result;
+                    document.getElementById('p-image-preview').style.backgroundImage = `url('${result}')`;
+                    document.getElementById('p-img-url').value = ''; // Borrar URL si se sube archivo
+                }
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+
+        function saveProduct(e) {
+            e.preventDefault();
+            const id = document.getElementById('p-id').value;
+            
+            // Prioridad: 1. URL escrita, 2. Data Base64 (archivo o URL previa), 3. Placeholder
+            let finalImg = document.getElementById('p-img-url').value;
+            if(!finalImg) finalImg = document.getElementById('p-image-data').value;
+            if(!finalImg) finalImg = "https://via.placeholder.com/400";
+
+            const productData = {
+                name: document.getElementById('p-name').value,
+                category: document.getElementById('p-category').value,
+                price: parseFloat(document.getElementById('p-price').value),
+                oldPrice: document.getElementById('p-old-price').value ? parseFloat(document.getElementById('p-old-price').value) : 0,
+                desc: document.getElementById('p-desc').value,
+                stock: document.getElementById('p-stock').checked,
+                isNew: document.getElementById('p-is-new').checked,
+                image: finalImg
+            };
+
+            const promise = id ? productsRef.doc(id).update(productData) : productsRef.add(productData);
+            
+            promise.then(() => closeModal('admin-product-modal'))
+                   .catch(err => alert("Error al guardar: " + err.message));
+        }
+
+        function deleteProductFromModal() {
+            if (!activeModalProductId) return;
+            if(confirm("¿Eliminar producto?")) {
+                productsRef.doc(activeModalProductId).delete()
+                    .then(() => closeModal('product-modal'));
+            }
+        }
+
+        // --- 7. OTROS ---
+        function promptAdminLogin() {
+            if (prompt("Contraseña:") === ADMIN_PASS) {
+                state.isAdmin = true;
+                localStorage.setItem('pinpon_admin_logged', 'true');
+                renderAll();
+            } else alert("Error");
+        }
+
+        function logoutAdmin() {
+            state.isAdmin = false;
+            localStorage.removeItem('pinpon_admin_logged');
+            renderAll();
+        }
+
+        function updateSettings() {
+            configRef.update({ exchangeRate: parseFloat(document.getElementById('exchange-rate').value) });
+        }
+
+        function editBanner() {
+            if(!state.isAdmin) return;
+            const t = prompt("Nuevo Título:", state.bannerTitle);
+            const s = prompt("Nuevo Subtítulo:", state.bannerSub);
+            if(t || s) configRef.update({ bannerTitle: t || state.bannerTitle, bannerSub: s || state.bannerSub });
+        }
+
+        // --- 8. HELPERS CARRITO Y MODALES ---
+        function updateCardQty(id, change) {
+            const el = document.getElementById(`card-qty-${id}`);
+            let val = parseInt(el.innerText) + change;
+            if (val < 1) val = 1;
+            el.innerText = val;
+        }
+        function addFromCard(id) {
+            addToCart(id, parseInt(document.getElementById(`card-qty-${id}`).innerText));
+        }
+        function addToCart(id, qty) {
+            const p = state.products.find(x => x.id === id);
+            if (!p) return;
+            const exist = state.cart.find(x => x.id === id);
+            if(exist) exist.qty += qty;
+            else state.cart.push({ id: id, qty: qty });
+            saveDataLocal();
+            updateCartIcon();
+            // Animación
+            const badge = document.getElementById('cart-count');
+            badge.style.transform = "scale(1.5)";
+            setTimeout(() => badge.style.transform = "scale(1)", 200);
+        }
+        function updateCartIcon() {
+            document.getElementById('cart-count').innerText = state.cart.reduce((s, i) => s + i.qty, 0);
+        }
+        function openProductModal(id) {
+            activeModalProductId = id;
+            const p = state.products.find(x => x.id === id);
+            document.getElementById('modal-img').src = p.image;
+            document.getElementById('modal-title').innerText = p.name;
+            document.getElementById('modal-desc').innerText = p.desc;
+            document.getElementById('modal-price').innerText = `$${p.price}`;
+            const mn = (p.price * state.exchangeRate).toFixed(0);
+            document.getElementById('modal-mn-price').innerText = `(${mn} MN)`;
+            document.getElementById('admin-product-actions').style.display = state.isAdmin ? 'flex' : 'none';
+            openModal('product-modal');
+        }
+        function openCategoryManager(open) {
+            const list = document.getElementById('category-list-admin');
+            list.innerHTML = '';
+            categoriesRef.get().then(snap => {
+                snap.forEach(doc => {
+                    list.innerHTML += `<div style="display:flex; justify-content:space-between; padding:5px;"><span>${doc.data().name}</span><button onclick="deleteCat('${doc.id}')" style="color:red;border:none;">X</button></div>`;
+                });
+            });
+            if(open) openModal('category-manager-modal');
+        }
+        function addCategory() {
+            const val = document.getElementById('new-category-input').value;
+            if(val) categoriesRef.add({name: val}).then(() => openCategoryManager(false));
+        }
+        function deleteCat(id) {
+            if(confirm("Borrar?")) categoriesRef.doc(id).delete().then(() => openCategoryManager(false));
+        }
+        // Helper Modales
+        function openCart() { 
+            const c = document.getElementById('cart-items'); c.innerHTML=''; 
+            let total=0;
+            state.cart.forEach((i, idx) => {
+                const p = state.products.find(x=>x.id===i.id);
+                if(p) {
+                    total+=p.price*i.qty;
+                    c.innerHTML += `<div style="display:flex; justify-content:space-between; margin-bottom:10px;"><span>${p.name} (${i.qty})</span><span>$${p.price*i.qty}</span><button onclick="removeCart(${idx})" style="color:red;border:none;">X</button></div>`;
+                }
+            });
+            document.getElementById('cart-total').innerText = `$${total} USD`;
+            openModal('cart-modal'); 
+        }
+        function removeCart(idx){ state.cart.splice(idx,1); saveDataLocal(); openCart(); updateCartIcon(); }
         function openMenu() { openModal('menu-modal'); }
         function openModal(id) { document.getElementById(id).classList.add('open'); }
         function closeModal(id) { document.getElementById(id).classList.remove('open'); }
 
-        // Start
-        window.onload = init; // Inicializar cuando la página termine de cargar
+        init();
     </script>
 </body>
 </html>
