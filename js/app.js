@@ -99,3 +99,7 @@
     await window.saveOrderFirebase(order);
 
     const msg = `Pedido PIN
+const menuBtn = document.querySelector(".menu-btn");
+if (menuBtn) menuBtn.addEventListener("click", () => {
+    openMenu();
+});
